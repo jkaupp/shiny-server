@@ -2,7 +2,7 @@ library(shiny)
 library(shinythemes)
 library(rCharts)
 
-source("./wrangling.R")
+source("wrangling.R")
 
 # Define UI
 shinyUI(
