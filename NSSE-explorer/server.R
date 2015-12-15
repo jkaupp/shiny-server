@@ -6,29 +6,10 @@ library(ggplot2)
 library(scales)
 library(grid)
 library(gridExtra)
-library(extrafont)
 library(rCharts)
- 
-# Test Unit
-#     df <- nsse_results %>%
-#       filter(
-#         School %in% Comparators |
-#           School == "Queen's" |
-#           School == "All",
-#         Dept %in% "APSC",
-#         Year %in% "First Year",
-#         !is.na(Indicator),
-#         Indicator !="HIP"
-#       )
-#     
-#     local_nsse_scale <- df %>% 
-#       filter(N>=10, Indicator=="CL", Code!="Engagement Indicator", School != "All") %>% 
-#       arrange(Code,Mean) %>% 
-#       mutate(School = factor(School,School))
 
 
-
-source("wrangling.R")
+source("./wrangling.R")
 
 # Report Layouts by Indicator ----
 CL_layout <- rbind(c(5,5,5,5),
@@ -202,7 +183,7 @@ shinyServer(function(input, output) {
       xlab("\nSurvey Item") +
       ggtitle("NSSE: Engagement Indicator Comparison to National Average and National Leaders\n") +
       theme(
-        text = element_text(family = "DejaVu Serif Condensed", size = 18),
+        text = element_text(size = 18),
         panel.grid.major.y = element_line(colour = "grey50", size = 0.05),
         panel.grid.minor.y = element_blank(),
         panel.grid.major.x = element_blank(),
@@ -233,7 +214,7 @@ shinyServer(function(input, output) {
       arrange( Mean) %>%
       mutate(School = factor(School,School))
     
-    all_nsse_EI <- temp %>%  #data2() %>%
+    all_nsse_EI <-  data2() %>%
       filter(N > 10,  Code == "Engagement Indicator", School == "All")
     
     EI_plot <-
@@ -254,7 +235,7 @@ shinyServer(function(input, output) {
       ylab("Weighted Mean") +
       xlab("") +
       theme(
-        text = element_text(family = "DejaVu Serif Condensed", size = 18),
+        text = element_text(size = 18),
         panel.grid.major.y = element_blank(),
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
@@ -295,7 +276,7 @@ shinyServer(function(input, output) {
         xlab("") +
         facet_wrap(~Year) +
         theme(
-          text = element_text(family = "DejaVu Serif Condensed", size = 12),
+          text = element_text(size = 12),
           panel.grid.major.y = element_blank(),
           panel.grid.major.x = element_blank(),
           panel.grid.minor.x = element_blank(),
