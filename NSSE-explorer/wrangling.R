@@ -29,7 +29,7 @@ library(stringr)
 # "Western"
 # )
 
-nsse_data <- "./data/NSSE.xlsx"
+nsse_data <- "data/NSSE.xlsx"
 
 
 nsse_indicators <-
