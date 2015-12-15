@@ -1,10 +1,10 @@
 library(rio)
 library(readxl)
-suppressMessages(library(zoo))
+library(zoo)
 library(magrittr)
 library(plyr)
-suppressMessages(library(dplyr))
-suppressMessages(library(tidyr))
+library(dplyr)
+library(tidyr)
 library(stringr)
 
 #nsse_data <- "/Users/Jake/ownCloud/FEAS/QUQAP/Unit Data/OIRP/01_04-SF-Student Learning Experience-NSSE National 2014 - Means - Program Groups - Engineering (Mar 2015).xlsx"
@@ -27,11 +27,14 @@ library(stringr)
 # "UBC",
 # "Waterloo",
 # "Western"
-# )
-
-nsse_data <- "data/NSSE.xlsx"
 
 
+# Directory and File Declarations
+DATA_DIR <- file.path("data")
+
+nsse_data <- file.path(DATA_DIR, "NSSE.xlsx")
+
+# Create the Full Description of the NSSE Indicators
 nsse_indicators <-
   data_frame(
     Indicator = c("CL","DD","ET","HO","LS","QI","QR","RI","SE","SF"), Description =
@@ -39,6 +42,64 @@ nsse_indicators <-
         "Collaborative Learning","Discussions with Diverse Others","Effective Teaching Practises","Higher-Order Learning","Learning Strategies","Quality of Interactions","Quantiative Reasoning","Reflective & Integrative Learning","Supportive Environment","Student-Faculty Interaction"
       )
   )
+
+
+# Create Report Layouts by Indicator for Program Breakdown----
+CL_layout <- rbind(c(5,5,5,5),
+                   c(1,1,2,2),
+                   c(3,3,4,4))
+
+QI_layout <- rbind(c(6,6,6,6),
+                   c(1,1,2,2),
+                   c(3,3,4,4),
+                   c(5,5,NA,NA))
+
+SE_layout <- rbind(c(9,9,9,9),
+                   c(1,1,2,2),
+                   c(3,3,4,4),
+                   c(5,5,6,6),
+                   c(7,7,8,8))
+
+RI_layout <- rbind(c(8,8,8,8),
+                   c(1,1,2,2),
+                   c(3,3,4,4),
+                   c(5,5,6,6),
+                   c(7,7,NA,NA))
+
+SF_layout <- rbind(c(5,5,5,5),
+                   c(1,1,2,2),
+                   c(3,3,4,4))
+
+HO_layout <- rbind(c(5,5,5,5),
+                   c(1,1,2,2),
+                   c(3,3,4,4))
+
+ET_layout <- rbind(c(6,6,6,6),
+                   c(1,1,2,2),
+                   c(3,3,4,4),
+                   c(5,5,NA,NA))
+
+QR_layout <- rbind(c(4,4,4,4),
+                   c(1,1,2,2),
+                   c(3,3,NA,NA))
+
+DD_layout <- rbind(c(5,5,5,5),
+                   c(1,1,2,2),
+                   c(3,3,4,4))
+
+LS_layout <- rbind(c(4,4,4,4),
+                   c(1,1,2,2),
+                   c(3,3,NA,NA))
+
+# Create the Layout Frame for gridArrange
+layout_frame <-
+  list(
+    CL_layout = CL_layout,QI_layout = QI_layout,SE_layout = SE_layout,RI_layout =
+      RI_layout,SF_layout = SF_layout,HO_layout = HO_layout,ET_layout = ET_layout,QR_layout =
+      QR_layout,DD_layout = DD_layout,LS_layout = LS_layout
+  )
+
+
 
 
 # Function to read the OIRP nsse summary data and convert it to a useful form.
@@ -72,8 +133,7 @@ nsse_extract <- function(sheet) {
     )
 }
 
-
-# Apply the function to the raw nsse data and change variable types ----
+# Use nsse_extract to read and format the data for the app ----
 nsse_results <- lapply(excel_sheets(nsse_data),nsse_extract) %>%
   bind_rows() %>%
   mutate(
@@ -89,5 +149,6 @@ nsse_results <- lapply(excel_sheets(nsse_data),nsse_extract) %>%
   left_join(nsse_indicators, by="Indicator")
 
 institution_list <- unique(as.character(nsse_results$School))
+
 department_list <- unique(as.character(nsse_results$Dept))
 

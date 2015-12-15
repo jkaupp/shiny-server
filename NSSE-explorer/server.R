@@ -8,64 +8,6 @@ library(grid)
 library(gridExtra)
 library(rCharts)
 
-
-# Report Layouts by Indicator ----
-CL_layout <- rbind(c(5,5,5,5),
-                   c(1,1,2,2),
-                   c(3,3,4,4))
-
-QI_layout <- rbind(c(6,6,6,6),
-                   c(1,1,2,2),
-                   c(3,3,4,4),
-                   c(5,5,NA,NA))
-
-SE_layout <- rbind(c(9,9,9,9),
-                   c(1,1,2,2),
-                   c(3,3,4,4),
-                   c(5,5,6,6),
-                   c(7,7,8,8))
-
-RI_layout <- rbind(c(8,8,8,8),
-                   c(1,1,2,2),
-                   c(3,3,4,4),
-                   c(5,5,6,6),
-                   c(7,7,NA,NA))
-
-SF_layout <- rbind(c(5,5,5,5),
-                   c(1,1,2,2),
-                   c(3,3,4,4))
-
-HO_layout <- rbind(c(5,5,5,5),
-                   c(1,1,2,2),
-                   c(3,3,4,4))
-
-ET_layout <- rbind(c(6,6,6,6),
-                   c(1,1,2,2),
-                   c(3,3,4,4),
-                   c(5,5,NA,NA))
-
-QR_layout <- rbind(c(4,4,4,4),
-                   c(1,1,2,2),
-                   c(3,3,NA,NA))
-
-DD_layout <- rbind(c(5,5,5,5),
-                   c(1,1,2,2),
-                   c(3,3,4,4))
-
-LS_layout <- rbind(c(4,4,4,4),
-                   c(1,1,2,2),
-                   c(3,3,NA,NA))
-
-
-layout_frame <-
-  list(
-    CL_layout = CL_layout,QI_layout = QI_layout,SE_layout = SE_layout,RI_layout =
-      RI_layout,SF_layout = SF_layout,HO_layout = HO_layout,ET_layout = ET_layout,QR_layout =
-      QR_layout,DD_layout = DD_layout,LS_layout = LS_layout
-  )
-
-
-
 # Define server logic for random distribution application
 shinyServer(function(input, output) {
 
