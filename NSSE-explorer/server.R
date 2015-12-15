@@ -1,6 +1,6 @@
 library(shiny)
 library(plyr)
-suppressMessages(library(dplyr))
+library(dplyr)
 library(magrittr)
 library(ggplot2)
 library(scales)
@@ -246,8 +246,7 @@ shinyServer(function(input, output) {
     grid.arrange(
       grobs = scales_plot, layout_matrix = layout_frame[[paste0(input$indicator,"_layout")]], top = textGrob(
         "NSSE: Engagement Indicator Item Breakdown", gp =
-          gpar(fontsize = 22, fontfamily =
-                 "DejaVu Serif Condensed")
+          gpar(fontsize = 22)
       )
     )
   
@@ -260,7 +259,7 @@ shinyServer(function(input, output) {
     spider_fy$chart(polar = TRUE)
     spider_fy$params$width <- 750
     spider_fy$params$height <- 600
-   # return(spider_fy)
+    return(spider_fy)
   })
   
   output$spider_chart_sy <- renderChart2({
@@ -268,7 +267,7 @@ shinyServer(function(input, output) {
     spider_sy$chart(polar = TRUE)
     spider_sy$params$width <- 750
     spider_sy$params$height <- 600
-   # return(spider_sy)
+    return(spider_sy)
   })
   
   
