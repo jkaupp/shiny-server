@@ -254,21 +254,21 @@ shinyServer(function(input, output) {
 
   
   # Rcharts Dashboard Reactive Function ----
-  output$spider_chart_fy <- renderChart2({
-    spider_fy <- hPlot(x = "Description", y="Ratio",  data = subset(data3(),Year=="First Year"), type = "line", group = "Category",title = "NSSE Engagement Indicators: First Year", subtitle = "Ratio to National Average")
-    spider_fy$chart(polar = TRUE)
-    spider_fy$params$width <- 750
-    spider_fy$params$height <- 600
-    return(spider_fy)
-  })
-  
-  output$spider_chart_sy <- renderChart2({
-    spider_sy <- hPlot(x = "Description", y="Ratio",  data = subset(data3(), Year=="Senior Year"), type = "line", group = "Category",title = "NSSE Engagement Indicators: Senior Year", subtitle = "Ratio to National Average")
-    spider_sy$chart(polar = TRUE)
-    spider_sy$params$width <- 750
-    spider_sy$params$height <- 600
-    return(spider_sy)
-  })
+#   output$spider_chart_fy <- renderChart2({
+#     spider_fy <- hPlot(x = "Description", y="Ratio",  data = subset(data3(),Year=="First Year"), type = "line", group = "Category",title = "NSSE Engagement Indicators: First Year", subtitle = "Ratio to National Average")
+#     spider_fy$chart(polar = TRUE)
+#     spider_fy$params$width <- 750
+#     spider_fy$params$height <- 600
+#     return(spider_fy)
+#   })
+#   
+#   output$spider_chart_sy <- renderChart2({
+#     spider_sy <- hPlot(x = "Description", y="Ratio",  data = subset(data3(), Year=="Senior Year"), type = "line", group = "Category",title = "NSSE Engagement Indicators: Senior Year", subtitle = "Ratio to National Average")
+#     spider_sy$chart(polar = TRUE)
+#     spider_sy$params$width <- 750
+#     spider_sy$params$height <- 600
+#     return(spider_sy)
+#   })
   
   
   # Output nsse_lollipop to plot 1 UI element
