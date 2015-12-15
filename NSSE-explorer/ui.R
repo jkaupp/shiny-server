@@ -27,8 +27,8 @@ shinyUI(
                  
                  submitButton("Refesh Chart")
                ),
-               column(width = 5, showOutput("spider_chart_fy", "Highcharts")),
-               column(width = 5, showOutput("spider_chart_sy", "Highcharts"))
+               column(width = 5, showOutput("spider_chart_fy", "highcharts")),
+               column(width = 5, showOutput("spider_chart_sy", "highcharts"))
              )),
     
     
