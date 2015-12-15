@@ -8,6 +8,8 @@ library(grid)
 library(gridExtra)
 library(rCharts)
 
+source("wrangling.R")
+
 # Define server logic for random distribution application
 shinyServer(function(input, output) {
 
