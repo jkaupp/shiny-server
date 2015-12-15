@@ -114,7 +114,7 @@ nsse_extract <- function(df, sheet) {
 institution_list <-
   c(
     "Jordan College", "Battle School", "Unseen University", "Wayside School",
-    "Brakebills", "Bayside", "Hampden College", "Hogwarts", "Xavier Institute",
+    "Brakebills", "Bayside", "Hampden College", "Xavier Institute",
     "Starfleet Academy"
   )
 
