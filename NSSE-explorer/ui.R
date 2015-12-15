@@ -3,8 +3,6 @@ library(shinythemes)
 library(rCharts)
 
 
-source("wrangling.R")
-
 # Define UI
 shinyUI(
 
@@ -22,8 +20,10 @@ shinyUI(
 
                  selectInput("department3", label = "Select Department", choices = department_list),
                  
-                 checkboxGroupInput("compare_group3", label = "Select Comparison Institutions",
-                                    choices = institution_list),
+                 checkboxGroupInput(
+                   "compare_group3", label = "Select Comparison Institutions",
+                   choices = institution_list, selected = institution_list
+                 ),
                  
                  submitButton("Refesh Chart")
                ),
@@ -38,12 +38,10 @@ shinyUI(
                column(
                  width = 2,
       
-                 selectInput(
-                   "department", label = "Select Department", choices = department_list
-                 ),
+                 selectInput("department", label = "Select Department", choices = department_list),
                  checkboxGroupInput(
                    "compare_group", label = "Select Comparison Institutions",
-                   choices = institution_list
+                   choices = institution_list, selected = institution_list
                  ),
                  submitButton("Refesh Chart"),
                  br(),
@@ -53,14 +51,12 @@ shinyUI(
                  'plot1',  width = "100%", height = 1000
                ))
              )),
+    
     tabPanel("Program Breadown",
              fluidRow(
                column(
                  width = 2,
-                
-                 selectInput(
-                   "department2", label = "Select Department", choices = department_list
-                 ),
+                 selectInput("department2", label = "Select Department", choices = department_list),
                  selectInput(
                    "indicator", label = "Select Indicator", choices = c(
                      "Collaborative Learning" = "CL","Discussions With Diverse Others" = "DD","Effective Teaching Practises" =
@@ -71,7 +67,7 @@ shinyUI(
                  ),
                  checkboxGroupInput(
                    "compare_group2", label = "Select Comparison Institutions",
-                   choices = institution_list
+                   choices = institution_list, selected = institution_list
                  ),
                  submitButton("Refesh Chart"),
                  br(),
