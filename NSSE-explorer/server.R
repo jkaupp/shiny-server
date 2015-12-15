@@ -260,7 +260,7 @@ shinyServer(function(input, output) {
     spider_fy$chart(polar = TRUE)
     spider_fy$params$width <- 750
     spider_fy$params$height <- 600
-    return(spider_fy)
+   # return(spider_fy)
   })
   
   output$spider_chart_sy <- renderChart2({
@@ -268,7 +268,7 @@ shinyServer(function(input, output) {
     spider_sy$chart(polar = TRUE)
     spider_sy$params$width <- 750
     spider_sy$params$height <- 600
-    return(spider_sy)
+   # return(spider_sy)
   })
   
   
