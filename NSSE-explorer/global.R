@@ -8,8 +8,9 @@ library(tidyr)
 library(stringr)
 
 # Directory and File Declarations
-data_dir <- file.path("data")
-nsse_data <- file.path(data_dir,"NSEE.xlsx")
+
+nsse_data <- file.path(".","data","NSSE.xlsx")
+
 
 # Create the Full Description of the NSSE Indicators
 nsse_indicators <-
