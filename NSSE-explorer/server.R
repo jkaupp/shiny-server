@@ -9,19 +9,7 @@ library(gridExtra)
 library(rCharts)
 
 # Use nsse_extract to read and format the data for the app ----
-nsse_results <- lapply(excel_sheets(nsse_data),nsse_extract) %>%
-  bind_rows() %>%
-  mutate(
-    Mean = as.numeric(Mean),
-    Year = factor(Year, levels=c("FY","SY"),labels=c("First Year","Senior Year")),
-    School = factor(School),
-    `Std Dev` = as.numeric(`Std Dev`),
-    N = as.numeric(N),
-    Color = ifelse(School=="Hogwarts","#3B9AB2","#333333"),
-    Code = factor(Code)
-  ) %>%
-  dplyr::rename(sd=`Std Dev`) %>% 
-  left_join(nsse_indicators, by="Indicator")
+
 
 # Define server logic for random distribution application
 shinyServer(function(input, output) {

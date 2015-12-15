@@ -7,31 +7,9 @@ library(dplyr)
 library(tidyr)
 library(stringr)
 
-#nsse_data <- "/Users/Jake/ownCloud/FEAS/QUQAP/Unit Data/OIRP/01_04-SF-Student Learning Experience-NSSE National 2014 - Means - Program Groups - Engineering (Mar 2015).xlsx"
-# lookup <- data_frame(sheet = c(excel_sheets(nsse_data)), dept = c("National", "APSC", "BMEE", "CHEE", "CIVL", "CMPE", "ELEC", "ENVR", "MECH", "METL", "MINE", "OTHR"))
-# 
-# Queens<-c("APSC", "CHEE", "CIVL", "ELEC", "CMPE", "MECH", "MINE")
-# 
-#  Comparators <-c(
-# "Alberta",
-# "Calgary",
-# "Dalhousie",
-# "Laval",
-# "Guelph",
-# "Manitoba",
-# "McGill",
-# "McMaster",
-# "Ottawa",
-# "Queen's",
-# "Saskatchewan",
-# "UBC",
-# "Waterloo",
-# "Western"
-
-
 # Directory and File Declarations
-
-nsse_data <- file.path("NSSE.xlsx")
+data_dir <- file.path("data")
+nsse_data <- file.path(data_dir,"NSEE.xlsx")
 
 # Create the Full Description of the NSSE Indicators
 nsse_indicators <-
@@ -102,8 +80,8 @@ layout_frame <-
 
 
 # Function to read the OIRP nsse summary data and convert it to a useful form.
-nsse_extract <- function(sheet) {
-  import(nsse_data, sheet = sheet) %>%
+nsse_extract <- function(df, sheet) {
+  import(df, sheet = sheet) %>%
     set_colnames(c("Prompt", "Drop", "Year", "Variable", .[3, c(5:ncol(.))])) %>%
     select(-Drop) %>% 
     mutate(Dept = .[2,1]) %>% 
@@ -142,4 +120,17 @@ institution_list <-
 department_list <- c("Underwater Basket Weaving", "Handwavium Processing", "Macaroni Art"
 )
 
+nsse_results <- lapply(excel_sheets(nsse_data), nsse_extract, df = nsse_data) %>%
+  bind_rows() %>%
+  mutate(
+    Mean = as.numeric(Mean),
+    Year = factor(Year, levels=c("FY","SY"),labels=c("First Year","Senior Year")),
+    School = factor(School),
+    `Std Dev` = as.numeric(`Std Dev`),
+    N = as.numeric(N),
+    Color = ifelse(School=="Hogwarts","#3B9AB2","#333333"),
+    Code = factor(Code)
+  ) %>%
+  dplyr::rename(sd=`Std Dev`) %>% 
+  left_join(nsse_indicators, by="Indicator")
 
