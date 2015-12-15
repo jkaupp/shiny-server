@@ -9,8 +9,6 @@ library(gridExtra)
 library(rCharts)
 
 
-source("./wrangling.R")
-
 # Report Layouts by Indicator ----
 CL_layout <- rbind(c(5,5,5,5),
                    c(1,1,2,2),
