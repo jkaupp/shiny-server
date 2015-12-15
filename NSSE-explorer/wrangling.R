@@ -30,9 +30,8 @@ library(stringr)
 
 
 # Directory and File Declarations
-DATA_DIR <- file.path("data")
 
-nsse_data <- file.path(DATA_DIR, "NSSE.xlsx")
+nsse_data <- file.path("NSSE.xlsx")
 
 # Create the Full Description of the NSSE Indicators
 nsse_indicators <-
