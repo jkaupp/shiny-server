@@ -8,9 +8,6 @@ library(grid)
 library(gridExtra)
 library(rCharts)
 
-# Use nsse_extract to read and format the data for the app ----
-
-
 # Define server logic for random distribution application
 shinyServer(function(input, output) {
 
@@ -56,7 +53,7 @@ shinyServer(function(input, output) {
         Indicator !="HIP"
       ) %>%
       group_by(Year, Indicator, Code) %>%
-      mutate(`National Leader` = (Mean / Mean[School == "All"])) %>%
+      mutate(`National Leader` = round(Mean / Mean[School == "All"],2)) %>%
       top_n(1,`National Leader`) %>%
       select(Year, School, Indicator, Code, `National Leader`) 
     
@@ -71,11 +68,11 @@ shinyServer(function(input, output) {
         Indicator !="HIP"
       ) %>%  
       group_by(Year, Indicator, Code) %>% 
-      summarize("Hogwarts" = Mean[School=="Hogwarts"] / Mean[School=="All"]) %>% 
+      summarize("Hogwarts" = round(Mean[School=="Hogwarts"] / Mean[School=="All"],2)) %>% 
       left_join(nsse_indicators, by="Indicator") 
     
     df3 %<>% 
-      left_join(.,school_df) %>% 
+      left_join(.,school_df, by = c("Year","Indicator","Code")) %>% 
       gather(Category, Ratio ,`National Leader`,`Hogwarts`) %>% 
       mutate(Indicator = factor(Indicator))
     
@@ -210,7 +207,7 @@ shinyServer(function(input, output) {
           aes(yintercept = Mean), color = "#F21A00", linetype = 4, size = 1, alpha = 0.5, data = subset(df, School ==
                                                                                                           "All")
         ) +
-        geom_text(aes(y = 0.5, x = School, label=paste("n=", (N), sep = "")), size = 4) +
+        #geom_text(aes(y = 0.5, x = School, label=paste("n=", (N), sep = "")), size = 3) +
         coord_flip() +
         ggtitle(str_wrap(paste0(unique(df$Code),":",unique(df$Prompt)),70)) +
         ylab("") +
@@ -274,13 +271,13 @@ shinyServer(function(input, output) {
   
   # Output nsse_lollipop to plot 1 UI element
   output$plot1 <- renderPlot({
-    nsse_lollipop() 
-  })
+    nsse_lollipop()
+    }, height = 720, width = 1280)
   
   # Output nsse_program_breakdown to plot 2 UI element
   output$plot2 <- renderPlot({
     nsse_program_breakdown()
-  })
+  }, height = 720, width = 1280)
 
   # Code to save nsse_lollipop plot.
   output$save_plot1 = downloadHandler(

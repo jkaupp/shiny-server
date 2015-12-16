@@ -6,18 +6,20 @@ library(rCharts)
 # Define UI
 shinyUI(
 
-  navbarPage(title="Select View:", windowTitle = "NSEE Explorer",
+  # Define a navbarPage, embed a header image
+  navbarPage(title = "Select View:", windowTitle = "NSEE Explorer",
     theme = shinytheme("cosmo"),
-    inverse = FALSE,
-    header = img(src = 'crest.png', height = 200), 
     
     
+    
+    # Program Dashboard Panel ----
     tabPanel("Program Dashboard",
              fluidRow(
                column(
                  width = 2,
-                
-
+                 
+                 img(src = 'crest.png', width = "100%"),
+                 
                  selectInput("department3", label = "Select Department", choices = department_list),
                  
                  checkboxGroupInput(
@@ -31,32 +33,42 @@ shinyUI(
                column(width = 5, showOutput("spider_chart_sy", "highcharts"))
              )),
     
-    
-    
+    # Program Overview Panel ----
     tabPanel("Program Overview",
              fluidRow(
                column(
                  width = 2,
+                 
+                 img(src = 'crest.png', width = "100%"),
       
                  selectInput("department", label = "Select Department", choices = department_list),
+                 
                  checkboxGroupInput(
                    "compare_group", label = "Select Comparison Institutions",
                    choices = institution_list, selected = institution_list
                  ),
+                 
                  submitButton("Refesh Chart"),
+                 
                  br(),
+                 
                  downloadButton("save_plot1", 'Save Chart')
                ),
                column(width = 10, plotOutput(
-                 'plot1',  width = "100%", height = 1000
+                 'plot1',  width = "100%" 
                ))
              )),
     
+    # Program Breakdown Panel ----
     tabPanel("Program Breadown",
              fluidRow(
                column(
                  width = 2,
+                 
+                 img(src = 'crest.png', width = "100%"),
+                 
                  selectInput("department2", label = "Select Department", choices = department_list),
+                 
                  selectInput(
                    "indicator", label = "Select Indicator", choices = c(
                      "Collaborative Learning" = "CL","Discussions With Diverse Others" = "DD","Effective Teaching Practises" =
@@ -69,12 +81,15 @@ shinyUI(
                    "compare_group2", label = "Select Comparison Institutions",
                    choices = institution_list, selected = institution_list
                  ),
+                 
                  submitButton("Refesh Chart"),
+                 
                  br(),
+                 
                  downloadButton("save_plot2", 'Save Chart')
                ),
                column(width = 10, plotOutput(
-                 'plot2',  width = "100%", height = 800
+                 'plot2',  width = "100%"
                ))
              ))
 ))
