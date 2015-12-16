@@ -55,7 +55,7 @@ shinyUI(
                  downloadButton("save_plot1", 'Save Chart')
                ),
                column(width = 10, plotOutput(
-                 'plot1',  width = "100%" 
+                 'plot1',  width = "100%", height = 1000 
                ))
              )),
     
@@ -89,7 +89,7 @@ shinyUI(
                  downloadButton("save_plot2", 'Save Chart')
                ),
                column(width = 10, plotOutput(
-                 'plot2',  width = "100%"
+                 'plot2',  width = "100%", height = 1000
                ))
              ))
 ))
