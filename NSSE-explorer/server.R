@@ -272,12 +272,12 @@ shinyServer(function(input, output) {
   # Output nsse_lollipop to plot 1 UI element
   output$plot1 <- renderPlot({
     nsse_lollipop()
-    }, height = 720, width = 1280)
+    }) #, height = 720, width = 1280)
   
   # Output nsse_program_breakdown to plot 2 UI element
   output$plot2 <- renderPlot({
     nsse_program_breakdown()
-  }, height = 720, width = 1280)
+  }) #, height = 720, width = 1280)
 
   # Code to save nsse_lollipop plot.
   output$save_plot1 = downloadHandler(
