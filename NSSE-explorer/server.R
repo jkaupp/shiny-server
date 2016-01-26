@@ -45,9 +45,11 @@ shinyServer(function(input, output) {
     df3 <- nsse_results %>%
       filter(
         School %in% input$compare_group3 |
+          #School %in% institution_list |
           School == "Hogwarts" |
           School == "All",
         Dept ==input$department3,
+        #Dept == "Underwater Basket Weaving",
         Code == "Engagement Indicator",
         !is.na(Indicator),
         Indicator !="HIP"
@@ -60,9 +62,11 @@ shinyServer(function(input, output) {
     school_df <- nsse_results %>% 
       filter(
         School %in% input$compare_group3 |
+          #School %in% institution_list |
           School == "Hogwarts" |
           School == "All",
         Dept == input$department3,
+        #ßDept == "Underwater Basket Weaving",
         Code == "Engagement Indicator",
         !is.na(Indicator),
         Indicator !="HIP"
