@@ -85,7 +85,7 @@ shinyServer(function(input, output, session) {
       else
         ""
     },
-    valueFunc = function() { gs_read(gs_file, verbose = FALSE) }
+    valueFunc = function() { gs_auth(verbose = FALSE) gs_read(gs_file, verbose = FALSE) }
   )
   
     # Reactive expression to wrangle googleform results
