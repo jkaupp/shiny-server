@@ -14,7 +14,7 @@ oncat_framework_scatter <- function(df) {
     scale_x_discrete(limits = transfer_, labels = function(x) str_wrap(x, width = 15), drop = FALSE) +
     scale_fill_viridis("Color Key",labels = str_wrap(get(tolower(paste0(unique(df$item),"_"))),60), discrete = TRUE) +
     theme(
-      text = element_text(family = "Oswald Light", size = 20, color = "black"),
+      text = element_text(size = 20, color = "black"),
       legend.position = "bottom",
       legend.key = element_blank(),
       legend.title = element_text(size = 16),
@@ -32,7 +32,7 @@ oncat_framework_scatter <- function(df) {
       strip.text = element_text(hjust = 0, face = "bold"),
       strip.background = element_blank(),
       plot.background = element_blank(),
-      plot.caption = element_text(size = 14, family = "Quattrocento", face = "italic"))
+      plot.caption = element_text(size = 14, face = "italic"))
   
   plot
 }
