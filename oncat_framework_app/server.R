@@ -63,8 +63,8 @@ shinyServer(function(input, output, session) {
   
   
   # Get googlesheet data
-  options("googlesheets.httr_oauth_cache" = "gs_auth")
-  gs_auth(verbose = FALSE)
+  # options("googlesheets.httr_oauth_cache" = "gs_auth")
+  # gs_auth(verbose = FALSE)
   gs_file <- gs_key(x = googleform_data_key, verbose = FALSE)
   
   # Reactive Expression to Poll the Googlesheet every 4 seconds
@@ -77,7 +77,9 @@ shinyServer(function(input, output, session) {
       else
         ""
     },
-    valueFunc = function() { gs_auth(verbose = FALSE)
+    valueFunc = function() { 
+      # options("googlesheets.httr_oauth_cache" = "gs_auth")
+      # gs_auth(verbose = FALSE)
       gs_read(gs_file, verbose = FALSE) }
   )
   
