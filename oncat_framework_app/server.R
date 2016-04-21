@@ -1,16 +1,8 @@
-
-# This is the server logic for a Shiny web application.
-# You can find out more about building applications with Shiny here:
-#
-# http://shiny.rstudio.com
-#
-
 library(shiny)
+library(googlesheets)
 library(tidyr)
 library(dplyr)
-library(googlesheets)
 library(stringr)
-library(purrr)
 library(magrittr)
 library(viridis)
 library(gridExtra)
@@ -85,7 +77,8 @@ shinyServer(function(input, output, session) {
       else
         ""
     },
-    valueFunc = function() { gs_auth(verbose = FALSE); gs_read(gs_file, verbose = FALSE) }
+    valueFunc = function() { gs_auth(verbose = FALSE)
+      gs_read(gs_file, verbose = FALSE) }
   )
   
     # Reactive expression to wrangle googleform results
