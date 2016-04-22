@@ -2,7 +2,6 @@
 googleform_embed_link <- "https://docs.google.com/forms/d/132Pw_5IoevjUbemoWnPrHEn2zOAXJcMTOXH8ClF4o5Y/viewform?embedded=true"
 googleform_data_key <- "1YPusUZWrzPnERPfqiOPS5y8VrjQP_CAHe7-6D_leUFo"
 
-options("googlesheets.httr_oauth_cache" = "gs_auth")
 gs_auth(verbose = FALSE)
 gs_file <- gs_key(x = googleform_data_key, verbose = FALSE)
 
@@ -31,7 +30,7 @@ transfer_ <- c(
 `depth of knowledge_` <- c(
   "Solved by standardized ways",
   "Solved by well-proven analytical techniques",
-  "Originiality in analysis, no obvious soltions"
+  "Originality in analysis, no obvious solutions"
 )
 
 interdependence_ <- c(

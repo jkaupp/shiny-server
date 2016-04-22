@@ -32,29 +32,25 @@ shinyServer(
        4000,
        session,
        checkFunc = function() {
-         gs_key(x = googleform_data_key, verbose = FALSE)$updated
+         #gs_key(x = googleform_data_key, verbose = FALSE)$updated
+         googlesheets:::gd_metadata(googleform_data_key)$modifiedTime
        },
        valueFunc = function() {
          gs_read(gs_file, verbose = FALSE) }
      )
 
-
-     
     # Plot Depth of Knowledge
     output$q1 <- renderPlot({
-      input$refresh1
       generate_plots(gs_df(), "1")
     })
     
     # Plot Type of Knowledge
     output$q2 <- renderPlot({
-      input$refresh2
       generate_plots(gs_df(), "2")
     })
       
       # Plot Interdependence
       output$q3 <- renderPlot({
-        input$refresh3
         generate_plots(gs_df(), "3")
       })
     
