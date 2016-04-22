@@ -73,7 +73,8 @@ oncat_framework_scatter <- function(df) {
       panel.background = element_blank(),
       strip.text = element_text(hjust = 0, face = "bold"),
       strip.background = element_blank(),
-      plot.background = element_blank())
+      plot.background = element_blank(),
+      plot.caption = element_text(size = 10, face = "italic"))
   
   return(plot)
 }
