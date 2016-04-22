@@ -55,7 +55,7 @@ oncat_framework_scatter <- function(df) {
     scale_fill_viridis("Color Key", limits = 
                          seq(1, length(get(tolower(paste0(unique(df$item),"_"))))),  labels = str_to_title(str_wrap(get(tolower(paste0(unique(df$item),"_"))), 60)), discrete = TRUE, drop = FALSE) +
     theme(
-      text = element_text(size = 16, color = "black"),
+      text = element_text(size = 16, color = "black", family = "Oswald Light"),
       legend.position = "bottom",
       legend.key = element_blank(),
       legend.title = element_text(size = 14),
