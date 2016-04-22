@@ -4,7 +4,6 @@ googleform_data_key <- "1MTMVKE2LC5LoF7yq0dm9kGmibRfRj3c913-T_r52d_8"
 
 gs_file <- gs_key(x = googleform_data_key, lookup = FALSE, verbose = FALSE)
 
-
 #Factor Levels
 `type of knowledge_` <- c("Factual",
                           "Conceptual",
@@ -74,7 +73,7 @@ oncat_framework_scatter <- function(df) {
       strip.text = element_text(hjust = 0, face = "bold"),
       strip.background = element_blank(),
       plot.background = element_blank(),
-      plot.caption = element_text(size = 10, face = "italic"))
+      plot.title = element_text(hjust = 0))
   
   return(plot)
 }
