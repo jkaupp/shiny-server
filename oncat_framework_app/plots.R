@@ -1,9 +1,9 @@
 ## Googlesheets links
 googleform_embed_link <- "https://docs.google.com/forms/d/132Pw_5IoevjUbemoWnPrHEn2zOAXJcMTOXH8ClF4o5Y/viewform?embedded=true"
-googleform_data_key <- "1YPusUZWrzPnERPfqiOPS5y8VrjQP_CAHe7-6D_leUFo"
+googleform_data_key <- "1MTMVKE2LC5LoF7yq0dm9kGmibRfRj3c913-T_r52d_8"
 
-gs_auth(verbose = FALSE)
-gs_file <- gs_key(x = googleform_data_key, verbose = FALSE)
+gs_file <- gs_key(x = googleform_data_key, lookup = FALSE, verbose = FALSE)
+
 
 #Factor Levels
 `type of knowledge_` <- c("Factual",
@@ -112,18 +112,18 @@ generate_plots <- function(df, q_num){
     plots <- NULL
   }
   
-  if (nrow(plots) == 0)
+  if (!is.null(plots))
   {
-    grid.arrange(textGrob("No Data to Plot", gp = gpar(fontsize = 36)))
-  } else if(is.na(plots)) {
-    grid.arrange(textGrob("No Data to Plot", gp = gpar(fontsize = 36)))
-  } else {
+    if (nrow(plots) == 0){
+      grid.arrange(textGrob("No Data to Plot", gp = gpar(fontsize = 36)))
+    } else {
     grid.arrange(
       grobs = plots$plots,
       top = textGrob(paste(str_to_title(unique(plots$question))), gp = gpar(fontsize = 20)),
       left = textGrob("Cognitive Process", gp = gpar(fontsize = 20),rot = 90),
-      bottom = textGrob("Transfer", gp = gpar(fontsize = 20))
-    )
+      bottom = textGrob("Transfer", gp = gpar(fontsize = 20))) }
+  } else {
+    grid.arrange(textGrob("No Data to Plot", gp = gpar(fontsize = 36)))
   }
   
   

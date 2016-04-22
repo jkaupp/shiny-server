@@ -1,5 +1,4 @@
 library(shiny)
-library(purrr)
 library(googlesheets)
 library(tidyr)
 library(dplyr)
@@ -32,25 +31,36 @@ shinyServer(
        4000,
        session,
        checkFunc = function() {
-         #gs_key(x = googleform_data_key, verbose = FALSE)$updated
-         googlesheets:::gd_metadata(googleform_data_key)$modifiedTime
+         gs_key(x = googleform_data_key, verbose = FALSE, lookup = FALSE)$updated
+         #googlesheets:::gd_metadata(googleform_data_key, auth = FALSE)$modifiedTime
        },
        valueFunc = function() {
-         gs_read(gs_file, verbose = FALSE) }
+         gs_read_csv(gs_file, verbose = FALSE) }
      )
 
     # Plot Depth of Knowledge
     output$q1 <- renderPlot({
+      # input$refresh1
+      # generate_plots(gs_read(gs_file, verbose = FALSE), "1")
+      
       generate_plots(gs_df(), "1")
+      
     })
     
     # Plot Type of Knowledge
     output$q2 <- renderPlot({
+      # input$refresh2
+      # observeEvent(input$refresh2, { gs_df <- gs_read(gs_file, verbose = FALSE)})
+      
       generate_plots(gs_df(), "2")
     })
       
       # Plot Interdependence
       output$q3 <- renderPlot({
+        # observeEvent(input$refresh3, { gs_df <- gs_read(gs_file, verbose = FALSE)})
+        # 
+        # gs_df <- gs_read(gs_file, verbose = FALSE)
+        
         generate_plots(gs_df(), "3")
       })
     
