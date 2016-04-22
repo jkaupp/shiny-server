@@ -81,6 +81,8 @@ oncat_framework_scatter <- function(df) {
 
 generate_plots <- function(df, q_num){
   
+  if(nrow(df) != 0)
+  {
   data <- df %>% 
     set_names(str_trim(tolower(names(.)))) %>%
     gather("item", "value",-timestamp) %>%
@@ -98,23 +100,33 @@ generate_plots <- function(df, q_num){
     mutate_each(funs(as.numeric), -question,-timestamp,-transfer,-`cognitive process`) %>%
     gather(item, rating,-timestamp,-question,-`cognitive process`,-transfer) %>%
     arrange(rating, item, `cognitive process`, transfer) 
+  } else {
+    data <- NULL
+  }
   
+  if (!is.null(data)){
   plots <- data %>% 
     group_by(question, item) %>% 
     do(plots = oncat_framework_scatter(.)) %>% 
     filter(grepl(q_num, question))
+  } else {
+    plots <- NULL
+  }
   
-  if (nrow(plots) != 0)
+  if (nrow(plots) == 0)
   {
+    grid.arrange(textGrob("No Data to Plot", gp = gpar(fontsize = 36)))
+  } else if(is.na(plots)) {
+    grid.arrange(textGrob("No Data to Plot", gp = gpar(fontsize = 36)))
+  } else {
     grid.arrange(
       grobs = plots$plots,
       top = textGrob(paste(str_to_title(unique(plots$question))), gp = gpar(fontsize = 20)),
       left = textGrob("Cognitive Process", gp = gpar(fontsize = 20),rot = 90),
       bottom = textGrob("Transfer", gp = gpar(fontsize = 20))
     )
-  } else
-  {
-    grid.arrange(textGrob("No Data to Plot", gp = gpar(fontsize = 36)))
   }
+  
+  
   
 }
