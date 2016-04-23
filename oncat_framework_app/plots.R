@@ -1,7 +1,5 @@
 ## Add fonts
 font.add.google("Oswald", "Oswald Light", regular.wt = 300)
-font.add.google("Quattrocento", "Quattrocento")
-
 
 ## Googlesheets links
 googleform_embed_link <- "https://docs.google.com/forms/d/132Pw_5IoevjUbemoWnPrHEn2zOAXJcMTOXH8ClF4o5Y/viewform?embedded=true"
@@ -60,15 +58,15 @@ oncat_framework_scatter <- function(df) {
     scale_fill_viridis("Color Key", limits = 
                          seq(1, length(get(tolower(paste0(unique(df$item),"_"))))),  labels = str_to_title(str_wrap(get(tolower(paste0(unique(df$item),"_"))), 60)), discrete = TRUE, drop = FALSE) +
     theme(
-      text = element_text(size = 12, color = "black", family = "Oswald Light"),
+      text = element_text(size = 12, color = "black"),
       legend.position = "bottom",
       legend.key = element_blank(),
       legend.title = element_text(size = 12),
-      legend.text = element_text(size = 10, family = "serif"),
+      legend.text = element_text(size = 10),
       legend.background = element_rect(fill = "white"),
       strip.text.y = element_text(angle = 180),
-      axis.text.x = element_text(angle = 0, hjust = 0.5, vjust = 0.5, color = "black", family = "serif"),
-      axis.text.y = element_text(color = "black", family = "serif"),
+      axis.text.x = element_text(angle = 0, hjust = 0.5, vjust = 0.5, color = "black"),
+      axis.text.y = element_text(color = "black"),
       axis.ticks.y = element_blank(),
       axis.ticks.x = element_line(colour = "grey80", size = 0.1),
       panel.margin.y = unit(1, "lines"),
@@ -78,7 +76,7 @@ oncat_framework_scatter <- function(df) {
       strip.text = element_text(hjust = 0, face = "bold"),
       strip.background = element_blank(),
       plot.background = element_blank(),
-      plot.title = element_text(hjust = 0))
+      plot.title = element_text(hjust = 0, family = "Oswald Light"))
   
   return(plot)
 }
@@ -126,9 +124,9 @@ generate_plots <- function(df, q_num){
     } else {
     grid.arrange(
       grobs = plots$plots,
-      top = textGrob(paste(str_to_title(unique(plots$question))), gp = gpar(fontsize = 20,  fontfamily = "Oswald Light")),
-      left = textGrob("Cognitive Process", gp = gpar(fontsize = 20, fontfamily = "Oswald Light"),rot = 90),
-      bottom = textGrob("Transfer", gp = gpar(fontsize = 20,  fontfamily = "Oswald Light"))) }
+      top = textGrob(paste(str_to_title(unique(plots$question))), gp = gpar(fontsize = 18,  fontfamily = "Oswald Light")),
+      left = textGrob("Cognitive Process", gp = gpar(fontsize = 18, fontfamily = "Oswald Light"),rot = 90),
+      bottom = textGrob("Transfer", gp = gpar(fontsize = 18,  fontfamily = "Oswald Light"))) }
   } else {
     grid.arrange(textGrob("No Data to Plot", gp = gpar(fontsize = 36,  fontfamily = "Oswald Light")))
   }
