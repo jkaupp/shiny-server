@@ -1,6 +1,7 @@
 ## Add fonts
 font.add.google("Oswald", "Oswald Light", regular.wt = 300)
-showtext.auto()
+font.add.google("Quattrocento", "Quattrocento")
+
 
 ## Googlesheets links
 googleform_embed_link <- "https://docs.google.com/forms/d/132Pw_5IoevjUbemoWnPrHEn2zOAXJcMTOXH8ClF4o5Y/viewform?embedded=true"
@@ -63,11 +64,11 @@ oncat_framework_scatter <- function(df) {
       legend.position = "bottom",
       legend.key = element_blank(),
       legend.title = element_text(size = 12),
-      legend.text = element_text(size = 10),
+      legend.text = element_text(size = 10, family = "Quattrocento"),
       legend.background = element_rect(fill = "white"),
       strip.text.y = element_text(angle = 180),
-      axis.text.x = element_text(angle = 0, hjust = 0.5, vjust = 0.5, color = "black"),
-      axis.text.y = element_text(color = "black"),
+      axis.text.x = element_text(angle = 0, hjust = 0.5, vjust = 0.5, color = "black", family = "Quattrocento"),
+      axis.text.y = element_text(color = "black", family = "Quattrocento"),
       axis.ticks.y = element_blank(),
       axis.ticks.x = element_line(colour = "grey80", size = 0.1),
       panel.margin.y = unit(1, "lines"),
@@ -83,6 +84,8 @@ oncat_framework_scatter <- function(df) {
 }
 
 generate_plots <- function(df, q_num){
+  
+  showtext.begin()
   
   if(nrow(df) != 0)
   {
@@ -130,6 +133,7 @@ generate_plots <- function(df, q_num){
     grid.arrange(textGrob("No Data to Plot", gp = gpar(fontsize = 36,  fontfamily = "Oswald Light")))
   }
   
+  showtext.end()
   
   
 }
