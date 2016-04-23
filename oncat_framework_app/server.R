@@ -8,8 +8,6 @@ library(grid)
 library(gridExtra)
 library(ggplot2)
 library(viridis)
-library(showtext)
-
 
 source("plots.R")
 

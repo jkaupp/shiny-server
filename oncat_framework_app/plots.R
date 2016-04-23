@@ -76,14 +76,12 @@ oncat_framework_scatter <- function(df) {
       strip.text = element_text(hjust = 0, face = "bold"),
       strip.background = element_blank(),
       plot.background = element_blank(),
-      plot.title = element_text(hjust = 0, family = "Oswald Light"))
+      plot.title = element_text(hjust = 0))
   
   return(plot)
 }
 
 generate_plots <- function(df, q_num){
-  
-  showtext.begin()
   
   if(nrow(df) != 0)
   {
@@ -120,18 +118,15 @@ generate_plots <- function(df, q_num){
   if (!is.null(plots))
   {
     if (nrow(plots) == 0){
-      grid.arrange(textGrob("No Data to Plot",  gp = gpar(fontsize = 36, fontfamily = "Oswald Light")))
+      grid.arrange(textGrob("No Data to Plot",  gp = gpar(fontsize = 36)))
     } else {
     grid.arrange(
       grobs = plots$plots,
-      top = textGrob(paste(str_to_title(unique(plots$question))), gp = gpar(fontsize = 18,  fontfamily = "Oswald Light")),
-      left = textGrob("Cognitive Process", gp = gpar(fontsize = 18, fontfamily = "Oswald Light"),rot = 90),
-      bottom = textGrob("Transfer", gp = gpar(fontsize = 18,  fontfamily = "Oswald Light"))) }
+      top = textGrob(paste(str_to_title(unique(plots$question))), gp = gpar(fontsize = 18)),
+      left = textGrob("Cognitive Process", gp = gpar(fontsize = 18),rot = 90),
+      bottom = textGrob("Transfer", gp = gpar(fontsize = 18))) }
   } else {
-    grid.arrange(textGrob("No Data to Plot", gp = gpar(fontsize = 36,  fontfamily = "Oswald Light")))
+    grid.arrange(textGrob("No Data to Plot", gp = gpar(fontsize = 36)))
   }
-  
-  showtext.end()
-  
   
 }
