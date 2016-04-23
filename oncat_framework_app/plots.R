@@ -55,7 +55,7 @@ oncat_framework_scatter <- function(df) {
     geom_vline(xintercept=seq(1.5, length(transfer_)-0.5, 1), lwd = 0.1, colour="grey80") +
     geom_hline(yintercept=seq(1.5, length(`cognitive process_`)-0.5, 1), lwd=0.1, colour="grey80") +
     scale_y_discrete(limits = `cognitive process_`, labels = function(x) str_wrap(x, width = 10), drop = FALSE) +
-    scale_x_discrete(limits = transfer_, labels = function(x) str_wrap(x, width = 15), drop = FALSE) +
+    scale_x_discrete(limits = transfer_, labels = function(x) str_wrap(x, width = 20), drop = FALSE) +
     scale_fill_viridis("Color Key", limits = 
                          seq(1, length(get(tolower(paste0(unique(df$item),"_"))))),  labels = str_to_title(str_wrap(get(tolower(paste0(unique(df$item),"_"))), 60)), discrete = TRUE, drop = FALSE) +
     theme(
