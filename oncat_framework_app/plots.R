@@ -55,15 +55,15 @@ oncat_framework_scatter <- function(df) {
     scale_fill_viridis("Color Key", limits = 
                          seq(1, length(get(tolower(paste0(unique(df$item),"_"))))),  labels = str_to_title(str_wrap(get(tolower(paste0(unique(df$item),"_"))), 60)), discrete = TRUE, drop = FALSE) +
     theme(
-      text = element_text(size = 12, color = "black"),
+      text = element_text(size = 16, color = "black"),
       legend.position = "bottom",
       legend.key = element_blank(),
       legend.title = element_text(size = 12),
       legend.text = element_text(size = 10),
       legend.background = element_rect(fill = "white"),
       strip.text.y = element_text(angle = 180),
-      axis.text.x = element_text(angle = 0, hjust = 0.5, vjust = 0.5, color = "black"),
-      axis.text.y = element_text(color = "black"),
+      axis.text.x = element_text(angle = 0, hjust = 0.5, vjust = 0.5, color = "black", size = 14),
+      axis.text.y = element_text(color = "black", size = 14),
       axis.ticks.y = element_blank(),
       axis.ticks.x = element_line(colour = "grey80", size = 0.1),
       panel.margin.y = unit(1, "lines"),
