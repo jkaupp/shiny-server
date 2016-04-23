@@ -59,11 +59,11 @@ oncat_framework_scatter <- function(df) {
     scale_fill_viridis("Color Key", limits = 
                          seq(1, length(get(tolower(paste0(unique(df$item),"_"))))),  labels = str_to_title(str_wrap(get(tolower(paste0(unique(df$item),"_"))), 60)), discrete = TRUE, drop = FALSE) +
     theme(
-      text = element_text(size = 16, color = "black", family = "Oswald Light"),
+      text = element_text(size = 12, color = "black", family = "Oswald Light"),
       legend.position = "bottom",
       legend.key = element_blank(),
-      legend.title = element_text(size = 14),
-      legend.text = element_text(size = 12),
+      legend.title = element_text(size = 12),
+      legend.text = element_text(size = 10),
       legend.background = element_rect(fill = "white"),
       strip.text.y = element_text(angle = 180),
       axis.text.x = element_text(angle = 0, hjust = 0.5, vjust = 0.5, color = "black"),
@@ -119,15 +119,15 @@ generate_plots <- function(df, q_num){
   if (!is.null(plots))
   {
     if (nrow(plots) == 0){
-      grid.arrange(textGrob("No Data to Plot", gp = gpar(fontsize = 36)))
+      grid.arrange(textGrob("No Data to Plot",  gp = gpar(fontsize = 36, fontfamily = "Oswald Light")))
     } else {
     grid.arrange(
       grobs = plots$plots,
-      top = textGrob(paste(str_to_title(unique(plots$question))), gp = gpar(fontsize = 20)),
-      left = textGrob("Cognitive Process", gp = gpar(fontsize = 20),rot = 90),
-      bottom = textGrob("Transfer", gp = gpar(fontsize = 20))) }
+      top = textGrob(paste(str_to_title(unique(plots$question))), gp = gpar(fontsize = 20,  fontfamily = "Oswald Light")),
+      left = textGrob("Cognitive Process", gp = gpar(fontsize = 20, fontfamily = "Oswald Light"),rot = 90),
+      bottom = textGrob("Transfer", gp = gpar(fontsize = 20,  fontfamily = "Oswald Light"))) }
   } else {
-    grid.arrange(textGrob("No Data to Plot", gp = gpar(fontsize = 36)))
+    grid.arrange(textGrob("No Data to Plot", gp = gpar(fontsize = 36,  fontfamily = "Oswald Light")))
   }
   
   
