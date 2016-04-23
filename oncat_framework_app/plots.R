@@ -59,7 +59,7 @@ oncat_framework_scatter <- function(df) {
       legend.position = "bottom",
       legend.key = element_blank(),
       legend.title = element_text(size = 12),
-      legend.text = element_text(size = 10),
+      legend.text = element_text(size = 12),
       legend.background = element_rect(fill = "white"),
       strip.text.y = element_text(angle = 180),
       axis.text.x = element_text(angle = 0, hjust = 0.5, vjust = 0.5, color = "black", size = 14),
