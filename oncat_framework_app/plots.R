@@ -1,3 +1,7 @@
+## Add fonts
+font.add.google("Oswald", "Oswald Light", regular.wt = 300)
+showtext.auto()
+
 ## Googlesheets links
 googleform_embed_link <- "https://docs.google.com/forms/d/132Pw_5IoevjUbemoWnPrHEn2zOAXJcMTOXH8ClF4o5Y/viewform?embedded=true"
 googleform_data_key <- "1MTMVKE2LC5LoF7yq0dm9kGmibRfRj3c913-T_r52d_8"
