@@ -57,6 +57,7 @@ shinyServer(function(input, output) {
       group_by(Year, Indicator, Code) %>%
       mutate(`National Leader` = round(Mean / Mean[School == "All"],2)) %>%
       top_n(1,`National Leader`) %>%
+      ungroup %>% 
       select(Year, School, Indicator, Code, `National Leader`) 
     
     school_df <- nsse_results %>% 
