@@ -2,7 +2,7 @@ library(shiny)
 library(shinyjs)
 
 shinyUI(
-  navbarPage(tags$div(class = "pen_header", tagList(useShinyjs(),tags$span("Pen", class = "pen"), tags$span(": A reporting companion to GRASP", class = "pen_sub"))), header = tagList(includeCSS("skeleton.css"), includeCSS("normalize.css")), id = "pen_navbar", 
+  navbarPage(tags$div(class = "pen_header", tagList(useShinyjs(),tags$span("Pen", class = "pen"), tags$span(": A reporting companion to GRASP", class = "pen_sub"))), header = tagList(includeCSS("skeleton.css"), includeCSS("normalize.css")), id = "pen_navbar", windowTitle = "Pen: A reporting companion to GRASP",
              
   tabPanel("Data",value = "data",
   sidebarLayout(

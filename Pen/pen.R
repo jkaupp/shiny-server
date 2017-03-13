@@ -7,13 +7,12 @@ grasp_mark_tables <- function(x, var) {
     select_(~reviewee_name, ~reviewer_name, var) %>%
     mutate(reviewee_name = factor(reviewee_name,levels = unique(reviewee_name))) %>% 
     mutate(reviewer_name = factor(reviewer_name,levels = unique(reviewer_name))) %>% 
-    spread_("reviewee_name", var) 
+    spread_("reviewee_name", var) %>% 
+    mutate_each(funs(as.character), reviewer_name)
   
   average <- summarize_each(main, funs(mean(., na.rm = TRUE)), -reviewer_name) %>% 
     mutate(reviewer_name = "Average") %>% 
     mutate_each(funs(trunc), -reviewer_name)
-  
-  #adj_average <- 
   
   bind_rows(main, average) %>% 
     set_names(c("Ratings For", names(.)[-1])) 
@@ -30,8 +29,8 @@ grasp_comment_tables <- function(x, var) {
     arrange(reviewee_last_name, reviewer_last_name, question) %>% 
     mutate(reviewee_name = factor(reviewee_name,levels = unique(reviewee_name))) %>% 
     mutate(reviewer_name = factor(reviewer_name,levels = unique(reviewer_name))) %>% 
-    mutate(comment = str_replace_all(comment, "[\r]" , "")) %>% 
-    mutate(comment = str_replace_all(comment, "[^[:alnum:]]", " ")) %>% 
+    mutate(comment = stri_replace_all_regex(comment, "[\r]" , "")) %>% 
+    mutate(comment = stri_replace_all_regex(comment, "[^[:alnum:]]", " ")) %>% 
     select(reviewee_name, reviewer_name, question, comment) %>% 
     rename(To = reviewee_name,
            From = reviewer_name,
@@ -65,13 +64,6 @@ make_tables <- function(data, type) {
       nest() %>% 
       mutate(comments = map(data, ~ grasp_comment_tables(.x, var = var)))
   
-    tables %>% 
-      select(team_number, comments) %>% 
-      filter(grepl("Team 10A", team_number)) %>% 
-      unnest()
-    
-    
-    #teams <- sprintf("Peer Comments Team: %s\\\n", names(comment_tables))
   }
   return(tables)
 }
