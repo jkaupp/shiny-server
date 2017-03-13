@@ -34,7 +34,7 @@ shinyServer(function(input, output) {
                                       filter(team_number == input$mark_team) %>% 
                                       unnest() %>% 
                                       select(-team_number) %>% 
-                                      datatable(options = list(dom = 't'), rownames = FALSE) %>% 
+                                      DT::datatable(options = list(dom = 't'), rownames = FALSE) %>% 
                                       formatStyle('Ratings For',
                                                   target = 'row',
                                                   fontWeight = styleEqual("Average",'bold')))
@@ -46,7 +46,7 @@ shinyServer(function(input, output) {
                                          unnest() %>% 
                                          filter_(~Question == sprintf("q%s", input$comment_q_num)) %>% 
                                          select(-team_number) %>% 
-                                         datatable(options = list(dom = 't'),  rownames = FALSE)
+                                         DT::datatable(options = list(dom = 't'),  rownames = FALSE)
                                        )
                                        
   
