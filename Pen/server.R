@@ -28,7 +28,7 @@ shinyServer(function(input, output) {
   
   comment_table <- reactive({make_tables(grasp_data(), type = "comment")})
   
-  output$DT_mark <- renderDataTable(mark_table() %>% 
+  output$DT_mark <- DT::renderDataTable(mark_table() %>% 
                                       select_(.dots = list(quote(team_number)), sprintf("table%s", input$q_num )) %>% 
                                       filter(team_number == input$mark_team) %>% 
                                       unnest() %>% 
@@ -39,7 +39,7 @@ shinyServer(function(input, output) {
                                                   fontWeight = styleEqual("Average",'bold')))
   
    
-  output$DT_comment <- renderDataTable(comment_table() %>% 
+  output$DT_comment <- DT::renderDataTable(comment_table() %>% 
                                          select(team_number, comments) %>% 
                                          filter(team_number == input$comment_team) %>% 
                                          unnest() %>% 

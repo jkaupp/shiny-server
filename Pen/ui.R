@@ -24,7 +24,7 @@ shinyUI(
                           uiOutput("markquestions"),
                           uiOutput("markteams")),
              mainPanel(width = 9,
-                       dataTableOutput("DT_mark"))
+                       DT::dataTableOutput("DT_mark"))
            )
   ),
   tabPanel("Comments",value = "comments",
@@ -34,7 +34,7 @@ shinyUI(
                           uiOutput("commentteams")
                           ),
              mainPanel(width = 9,
-                       dataTableOutput("DT_comment"))
+                       DT::dataTableOutput("DT_comment"))
            )
   )
 ))
