@@ -4,6 +4,7 @@ library(janitor)
 library(magrittr)
 library(readr)
 library(stringi)
+library(stringr)
 library(tidyverse)
 library(DT)
 
