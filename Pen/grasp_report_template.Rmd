@@ -80,17 +80,17 @@ if (params$type == "mark") {
   
   len <- length(table1)
   
-  teams <- sprintf("Peer Evalution Team: %s\\\n", names(table1))
+  teams <- sprintf("Peer Evalution Team: %s\\hfill \\break ", names(table1))
   
   tables <- c(rbind(teams,
-    rep("\\\n", len),
+    rep("\\hfill \\break ", len),
     rep("Intellectual and Technical Contribution", len) ,
     table1,
-    rep("\\\n", len),
+    rep("\\hfill \\break ", len),
     rep("Collaboration Communication and Work Ethic", len),
     table2,
-    rep("\\newpage", len),
-    rep("\\\n", len)))
+    rep("\\newpage ", len),
+    rep("\\hfill \\break ", len)))
   
   
 } else {
@@ -100,11 +100,11 @@ if (params$type == "mark") {
     split(.$team) %>% 
     map(~ grasp_comment_tables(.x, var = var))
   
-   teams <- sprintf("Peer Comments Team: %s\\\n", names(comment_tables))
+   teams <- sprintf("Peer Comments Team: %s\\hfill \\break ", names(comment_tables))
   
    len <- length(table)
   
-   tables <- c(rbind(teams, rep("\\\n", len), comment_tables, rep("\\newpage", len), rep("\\\n", len)))
+   tables <- c(rbind(teams, rep("\\hfill \\break ", len), comment_tables, rep("\\newpage ", len), rep("\\hfill \\break ", len)))
 }
 
  
@@ -112,7 +112,7 @@ if (params$type == "mark") {
 \footnotesize
 ```{r output, results = 'asis'}
 panderOptions('knitr.auto.asis', FALSE)
-#panderOptions('table.style', 'multiline')
 
 invisible(map(tables, ~ pander(.x, keep.line.breaks = TRUE, justify = "left", split.cell = 50, split.table = Inf, digits = 0, style = 'simple')))
 ```
+

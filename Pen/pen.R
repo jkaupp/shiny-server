@@ -1,4 +1,4 @@
-grasp_mark_tables <- function(x, var) {
+pen_mark_tables <- function(x, var) {
   
   main <- select_(x, ~reviewer_last_name, ~reviewer_first_name, ~reviewee_last_name, ~reviewee_first_name, var) %>% 
     mutate(reviewer_name = paste(reviewer_first_name,reviewer_last_name, sep = " ")) %>% 
@@ -19,7 +19,7 @@ grasp_mark_tables <- function(x, var) {
   
 }
 
-grasp_comment_tables <- function(x, var) {
+pen_comment_tables <- function(x, var) {
   
   select_(x,~reviewer_last_name, ~reviewer_first_name, ~reviewee_last_name, ~reviewee_first_name, ~contains(var)) %>% 
     mutate(reviewer_name = paste(reviewer_first_name,reviewer_last_name, sep = " ")) %>% 
@@ -52,8 +52,8 @@ make_tables <- function(data, type) {
       mutate(team_number = team) %>% 
       group_by(team_number) %>% 
       nest() %>% 
-      mutate(table1 = map(data, ~ grasp_mark_tables(.x, var = var[[1]])),
-             table2 = map(data, ~ grasp_mark_tables(.x, var = var[[2]])))
+      mutate(table1 = map(data, ~ pen_mark_tables(.x, var = var[[1]])),
+             table2 = map(data, ~ pen_mark_tables(.x, var = var[[2]])))
     
   } else {
     
@@ -62,7 +62,7 @@ make_tables <- function(data, type) {
       mutate(team_number = team) %>% 
       group_by(team_number) %>% 
       nest() %>% 
-      mutate(comments = map(data, ~ grasp_comment_tables(.x, var = var)))
+      mutate(comments = map(data, ~ pen_comment_tables(.x, var = var)))
   
   }
   return(tables)

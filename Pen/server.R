@@ -4,7 +4,6 @@ library(janitor)
 library(magrittr)
 library(readr)
 library(stringi)
-library(stringr)
 library(tidyverse)
 library(DT)
 
@@ -97,6 +96,7 @@ shinyServer(function(input, output) {
       
     }
   )
+  
   
   output$downloadCommentReport <- downloadHandler(
     filename = reactive(sprintf("GRASP Comment report - %s.pdf", tools::file_path_sans_ext(input$grasp_in[['name']]))),
