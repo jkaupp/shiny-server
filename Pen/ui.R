@@ -13,7 +13,7 @@ shinyUI(
                  tags$br(),
                  downloadButton("downloadCommentReport", "Download Comment Report", class = "pen_button")
     ),
-    mainPanel(width = 9)
+    mainPanel(width = 9, includeMarkdown("welcome.md"))
   )),
   
  
