@@ -12,10 +12,22 @@ source("pen.R")
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
   
+  #Set hidden/visible elements 
+  observe({toggleState("grasp_in", condition = input$survey_type != "")})
   
   observe({
-    toggle(condition = input$grasp_in, selector = "#pen_navbar li a[data-value=marks]")
-    toggle(condition = input$grasp_in, selector = "#pen_navbar li a[data-value=comments]")
+    if (is.null(input$grasp_in)) {
+      hide(selector = "#pen_navbar li a[data-value=marks]")
+      hide(selector = "#pen_navbar li a[data-value=comments]")
+    } else if (!is.null(input$grasp_in) && input$survey_type != "apsc") {
+      show(selector = "#pen_navbar li a[data-value=marks]")
+    } else {
+      show(selector = "#pen_navbar li a[data-value=marks]")
+      show(selector = "#pen_navbar li a[data-value=comments]")
+    }
+    })
+  
+   observe({
     toggleState("downloadMarkReport", condition = input$grasp_in)
     toggleState("downloadCommentReport", condition = input$grasp_in)
   })
@@ -24,31 +36,47 @@ shinyServer(function(input, output) {
                            clean_names() %>%
                            remove_empty_rows()}) 
   
-  mark_table <- reactive({make_tables(grasp_data(), type = "mark") })
   
-  comment_table <- reactive({make_tables(grasp_data(), type = "comment")})
   
-  output$DT_mark <- DT::renderDataTable(mark_table() %>% 
-                                      select_(.dots = list(quote(team_number)), sprintf("table%s", input$q_num )) %>% 
-                                      filter(team_number == input$mark_team) %>% 
-                                      unnest() %>% 
-                                      select(-team_number) %>% 
-                                      DT::datatable(options = list(dom = 't'), rownames = FALSE) %>% 
-                                      formatStyle('Ratings For',
-                                                  target = 'row',
-                                                  fontWeight = styleEqual("Average",'bold')))
+  observe({if (input$survey_type == "apsc") {
+    
+    mark_table <- reactive({make_tables(grasp_data(), type = "mark", survey = input$survey_type) })
+    
+    comment_table <- reactive({make_tables(grasp_data(), type = "comment", survey = input$survey_type)})
+    
+    output$DT_mark <- DT::renderDataTable(mark_table() %>% 
+                                            select_(.dots = list(quote(team_number)), sprintf("table%s", input$q_num )) %>% 
+                                            filter(team_number == input$mark_team) %>% 
+                                            unnest() %>% 
+                                            select(-team_number) %>% 
+                                            DT::datatable(options = list(dom = 't'), rownames = FALSE) %>% 
+                                            formatStyle('Ratings For',
+                                                        target = 'row',
+                                                        fontWeight = styleEqual("Average",'bold')))
+    
+    
+    output$DT_comment <- DT::renderDataTable(comment_table() %>% 
+                                               select(team_number, comments) %>% 
+                                               filter(team_number == input$comment_team) %>% 
+                                               unnest() %>% 
+                                               filter_(~Question == sprintf("q%s", input$comment_q_num)) %>% 
+                                               select(-team_number) %>% 
+                                               DT::datatable(options = list(dom = 't'),  rownames = FALSE)
+    )
+    
+  } else {
+    
+    mark_table <- reactive({make_tables(grasp_data(), survey = input$survey_type)})
+    
+    output$DT_mark <- DT::renderDataTable(mark_table() %>% 
+                                            filter(team_number == input$mark_team, scales == input$scale) %>% 
+                                            select(-team_number, -question, -scales) %>% 
+                                            spread(items, value) %>% 
+                                            DT::datatable(options = list(dom = 't'), rownames = FALSE)) 
+  }})
   
-   
-  output$DT_comment <- DT::renderDataTable(comment_table() %>% 
-                                         select(team_number, comments) %>% 
-                                         filter(team_number == input$comment_team) %>% 
-                                         unnest() %>% 
-                                         filter_(~Question == sprintf("q%s", input$comment_q_num)) %>% 
-                                         select(-team_number) %>% 
-                                         DT::datatable(options = list(dom = 't'),  rownames = FALSE)
-                                       )
-                                       
   
+ 
   output$markteams <- renderUI({
     teams <- unique(grasp_data()$team)
     selectInput('mark_team', 'Teams', teams)
@@ -56,11 +84,16 @@ shinyServer(function(input, output) {
   
   output$markquestions <- renderUI({
 
+    if (input$survey_type == "teamq") {
+      selectInput('scale', 'TeamQ Scale:', c("Contributes to Team Project", "Facilitates Contibutions of Others", "Planning and Management", "Fosters a Team Climate", "Manages Potential Conflict","Suggestions to Improve"))
+    } else {
+    
     questions <- stri_extract_all_regex(names(grasp_data()), "(q\\d+_mark)")
     
     qnumbers <-  stri_extract_all_regex(questions, "\\d+")
     
     selectInput('q_num', 'Question:', qnumbers[which(qnumbers != "NA")])
+    }
   })
   
   output$commentteams <- renderUI({

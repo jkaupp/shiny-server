@@ -7,7 +7,9 @@ shinyUI(
   tabPanel("Data",value = "data",
   sidebarLayout(
     sidebarPanel(width = 3,
+                 selectInput("survey_type", "What Survey?", list("Choose" = "", "APSC Peer Assessment" = "apsc","TeamQ Survey" = "teamq")),
                  fileInput("grasp_in", "Select GRASP Results File:", accept = c("text/csv","text/comma-separated-values, text/plain", ".csv")),
+                 tags$hr(),
                  downloadButton("downloadMarkReport", "Download Mark Report", class = "pen_button"),
                  tags$br(),
                  tags$br(),
@@ -16,9 +18,8 @@ shinyUI(
     mainPanel(width = 9, includeMarkdown("welcome.md"))
   )),
   
- 
-  # Sidebar with a slider input for number of bins
-  tabPanel("Marks",value = "marks",
+  
+  tabPanel("Marks", value = "marks",
            sidebarLayout(
              sidebarPanel(width = 3,
                           uiOutput("markquestions"),
@@ -27,7 +28,7 @@ shinyUI(
                        DT::dataTableOutput("DT_mark"))
            )
   ),
-  tabPanel("Comments",value = "comments",
+  tabPanel("Comments", value = "comments",
            sidebarLayout(
              sidebarPanel(width = 3,
                           uiOutput("commentquestions"),
