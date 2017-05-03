@@ -1,6 +1,6 @@
 ## What's all this then?
 
-Pen is a reporting writing tool to GRASP (pun intended).  Currently Pen works for two surveys:
+Pen is a report writing tool to GRASP (pun intended).  Currently Pen works for two surveys:
 
 1. The APSC 200 Peer Evaluation Survey
 2. TeamQ: Self and Peer Assessment of Teamwork Skills
