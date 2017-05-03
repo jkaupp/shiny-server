@@ -169,7 +169,7 @@ shinyServer(function(input, output) {
        
        # Use rmarkdown::render to produce a pdf report
        walk2(seq_along(ratings), names(ratings), ~rmarkdown::render(tempReport,
-                         output_file = sprintf("%s.pdf",.y),
+                         output_file = file.path(tempdir(), sprintf("%s.pdf",.y)),
                          params = list(data = sprintf("ratings[[%s]]", .x)),
                          clean = TRUE))
 

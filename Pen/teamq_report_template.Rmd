@@ -21,7 +21,7 @@ library(showtext)
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 
  teamq <- tibble(question = 1:15, 
-                  scales =c(rep("Contributes to Team Project", 3),rep("Facilitates Contibutions of Others",3),rep("Planning and Management",3),rep("Fosters a Team Climate",2),rep("Manages Potential Conflict",3),"Suggestions to Improve"),
+                  scales = c(rep("Contributes to Team Project", 3),rep("Facilitates Contibutions of Others",3),rep("Planning and Management",3),rep("Fosters a Team Climate",2),rep("Manages Potential Conflict",3),"Suggestions to Improve"),
                   items = c("Participates Actively and Accepts a Fair Share of the Group Work", 
              "Works Skillfully on Assigned Tasks and Completes Them on Time", 
              "Gives Timely, Constructive Feedback to Team Members, in the Appropriate Format", 
