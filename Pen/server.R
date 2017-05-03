@@ -82,7 +82,7 @@ shinyServer(function(input, output) {
   }})
   
   
- 
+## Generated UI Elements ----
   output$markteams <- renderUI({
     teams <- unique(grasp_data()$team)
     selectInput('mark_team', 'Teams', teams)
@@ -117,6 +117,22 @@ shinyServer(function(input, output) {
     selectInput('comment_q_num', 'Question:', qnumbers[which(qnumbers != "NA")])
   })
   
+  output$buttons <- renderUI({
+    
+    if (input$survey_type == "apsc" & !is.null(input$grasp_in)) {
+      list(downloadButton("downloadMarkReport", "Download Results Report", class = "pen_button"), 
+           tags$br(),
+           tags$br(),
+      downloadButton("downloadCommentReport", "Download Comment Report", class = "pen_button"))
+    } else if (input$survey_type == "teamq" & !is.null(input$grasp_in)) {
+      list(actionButton("processTeamQReport", "Process Team Q Report", class = "pen_button"),
+           tags$br(),
+           tags$br(),
+      downloadButton("downloadTeamQReport", "Download Team Q Report", class = "pen_button"))
+    }
+  })
+  
+## Download Handlers ----  
   output$downloadMarkReport <- downloadHandler(
     filename = reactive(sprintf("GRASP Mark report - %s.pdf", tools::file_path_sans_ext(input$grasp_in[['name']]))),
     content = function(file) {
@@ -161,21 +177,26 @@ shinyServer(function(input, output) {
       paste0("TeamQ", ".zip")
     },
     content = function(file) {
-       ratings <- split(grasp_data(), grasp_data()[["reviewee_id"]])
-       
-       tempReport <- file.path(tempdir(), "teamq_report_template.Rmd")
-       
-       file.copy("teamq_report_template.Rmd", tempReport, overwrite = TRUE)
-       
-       # Use rmarkdown::render to produce a pdf report
-       walk2(seq_along(ratings), names(ratings), ~rmarkdown::render(tempReport,
-                         output_file = file.path(tempdir(), sprintf("%s.pdf",.y)),
-                         params = list(data = sprintf("ratings[[%s]]", .x)),
-                         clean = TRUE))
-
-        zip(file, file.path(tempdir(), sprintf("%s.pdf", names(ratings))), flags = "-j") 
+      
+       zip(file, list.files(getwd(), pattern = "pdf"), flags = "-jm") 
     },
     contentType = "application/zip"
   )
+  
+  observeEvent(input$processTeamQReport, {
+    
+    ratings <- split(grasp_data(), grasp_data()[["reviewee_id"]])
+    
+    tempReport <- "teamq_report_template.Rmd"
+    
+    # file.copy("teamq_report_template.Rmd", tempReport, overwrite = TRUE)
+    
+    # Use rmarkdown::render to produce a pdf report
+    walk2(seq_along(ratings), names(ratings), ~rmarkdown::render(tempReport,
+                                                                 output_file = sprintf("%s.pdf",.y),
+                                                                 params = list(data = sprintf("ratings[[%s]]", .x)),
+                                                                 clean = TRUE))
+    
+  })
   
 })

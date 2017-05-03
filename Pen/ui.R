@@ -10,13 +10,14 @@ shinyUI(
                  selectInput("survey_type", "What Survey?", list("Choose" = "", "APSC Peer Assessment" = "apsc","TeamQ Survey" = "teamq")),
                  fileInput("grasp_in", "Select GRASP Results File:", accept = c("text/csv","text/comma-separated-values, text/plain", ".csv")),
                  tags$hr(),
-                 downloadButton("downloadMarkReport", "Download Mark Report", class = "pen_button"),
-                 tags$br(),
-                 tags$br(),
-                 downloadButton("downloadCommentReport", "Download Comment Report", class = "pen_button"),
-                 tags$br(),
-                 tags$br(),
-                 downloadButton("downloadTeamQReport", "Download TeamQ Report", class = "pen_button")
+                 uiOutput("buttons")
+                 # downloadButton("downloadMarkReport", "Download Mark Report", class = "pen_button"),
+                 # tags$br(),
+                 # tags$br(),
+                 # downloadButton("downloadCommentReport", "Download Comment Report", class = "pen_button"),
+                 # tags$br(),
+                 # tags$br(),
+                 # downloadButton("downloadTeamQReport", "Download TeamQ Report", class = "pen_button")
     ),
     mainPanel(width = 9, includeMarkdown("welcome.md"))
   )),
