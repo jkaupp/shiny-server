@@ -13,13 +13,16 @@ shinyUI(
                  downloadButton("downloadMarkReport", "Download Mark Report", class = "pen_button"),
                  tags$br(),
                  tags$br(),
-                 downloadButton("downloadCommentReport", "Download Comment Report", class = "pen_button")
+                 downloadButton("downloadCommentReport", "Download Comment Report", class = "pen_button"),
+                 tags$br(),
+                 tags$br(),
+                 downloadButton("downloadTeamQReport", "Download TeamQ Report", class = "pen_button")
     ),
     mainPanel(width = 9, includeMarkdown("welcome.md"))
   )),
   
   
-  tabPanel("Marks", value = "marks",
+  tabPanel("Results", value = "results",
            sidebarLayout(
              sidebarPanel(width = 3,
                           uiOutput("markquestions"),

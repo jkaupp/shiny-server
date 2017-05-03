@@ -17,13 +17,19 @@ shinyServer(function(input, output) {
   
   observe({
     if (is.null(input$grasp_in)) {
-      hide(selector = "#pen_navbar li a[data-value=marks]")
+      hide(selector = "#pen_navbar li a[data-value=results]")
       hide(selector = "#pen_navbar li a[data-value=comments]")
+      hide("downloadMarkReport")
+      hide("downloadCommentReport")
+      hide("downloadTeamQReport")
     } else if (!is.null(input$grasp_in) && input$survey_type != "apsc") {
-      show(selector = "#pen_navbar li a[data-value=marks]")
+      show(selector = "#pen_navbar li a[data-value=results]")
+      show("downloadTeamQReport")
     } else {
-      show(selector = "#pen_navbar li a[data-value=marks]")
+      show(selector = "#pen_navbar li a[data-value=results]")
       show(selector = "#pen_navbar li a[data-value=comments]")
+      show("downloadMarkReport")
+      show("downloadCommentReport")
     }
     })
   
@@ -149,4 +155,27 @@ shinyServer(function(input, output) {
       
     }
   )
+  
+  output$downloadTeamQReport <- downloadHandler(
+    filename = function() {
+      paste0("TeamQ", ".zip")
+    },
+    content = function(file) {
+       ratings <- split(grasp_data(), grasp_data()[["reviewee_id"]])
+       
+       tempReport <- file.path(tempdir(), "teamq_report_template.Rmd")
+       
+       file.copy("teamq_report_template.Rmd", tempReport, overwrite = TRUE)
+       
+       # Use rmarkdown::render to produce a pdf report
+       walk2(seq_along(ratings), names(ratings), ~rmarkdown::render(tempReport,
+                         output_file = sprintf("%s.pdf",.y),
+                         params = list(data = sprintf("ratings[[%s]]", .x)),
+                         clean = TRUE))
+
+        zip(file, file.path(tempdir(), sprintf("%s.pdf", names(ratings))), flags = "-j") 
+    },
+    contentType = "application/zip"
+  )
+  
 })
