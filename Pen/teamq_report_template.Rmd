@@ -1,0 +1,132 @@
+---
+title: "TeamQ Report"
+output: pdf_document
+params:
+  data: ratings[[12]]
+---
+
+```{r setup, include = FALSE}
+
+library(tidyverse)
+library(janitor)
+library(magrittr)
+library(knitr)
+library(pander)
+library(stringr)
+library(stringi)
+library(ggradar)
+library(jkmisc)
+library(showtext)
+
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+
+ teamq <- tibble(question = 1:15, 
+                  scales =c(rep("Contributes to Team Project", 3),rep("Facilitates Contibutions of Others",3),rep("Planning and Management",3),rep("Fosters a Team Climate",2),rep("Manages Potential Conflict",3),"Suggestions to Improve"),
+                  items = c("Participates Actively and Accepts a Fair Share of the Group Work", 
+             "Works Skillfully on Assigned Tasks and Completes Them on Time", 
+             "Gives Timely, Constructive Feedback to Team Members, in the Appropriate Format", 
+             "Communicates Actively and Constructively", "Encourages All Perspective be Considered and Acknowledges Contributions of Others", 
+             "Constructively Builds on Contributions of Others and Integrates Own Work with Work of Others", 
+             "Takes on an Appropriate Role in Group (E.g. Leader, Note Taker)", 
+             "Clarifies Goals and Plans the Project", "Reports to Team on Progress", 
+             "Ensures Consistency Between Words, Tone, Facial Expression and Body Language", 
+             "Expresses Positivity and Optimism About Team Members and Project", 
+             "Displays Appropriate Assertiveness: Neither Dominating, Submissive, nor Passive Aggressive", 
+             "Contributes Appropriately to Healthy Debate", "Responds to and Manages Direct/Indirect Conflict Constructively and Effectively",
+             "Write one specific, actionable goal to help your teammate improve their teamwork competency"
+  ))
+ 
+```
+
+
+```{r data}
+data <- eval(parse(text = params$data)) %>%
+    select_(~team, ~reviewer_last_name, ~reviewer_first_name, ~reviewee_last_name, ~reviewee_first_name, ~contains("q")) %>% 
+    unite(reviewer_name, reviewer_first_name, reviewer_last_name, sep = " ") %>% 
+    unite(reviewee_name, reviewee_first_name, reviewee_last_name, sep = " ") %>% 
+    mutate_at("q15", funs(stri_replace_all_regex(., "[\r]" , ""))) %>% 
+    mutate_at("q15", funs(stri_replace_all_regex(., "[^[:alnum:]]", " "))) %>%
+    gather(question, value, contains("q")) %>% 
+    filter(!is.numeric(value)) %>% 
+    mutate(question = parse_number(question)) %>% 
+    left_join(teamq, by = "question") %>% 
+    rename(To = reviewee_name,
+           From = reviewer_name,
+           team_number  = team)
+```
+
+Team-Q was developed for self and peer assessment of an individual's teamwork skills. It is designed for undergraduate education as a practical method for assessing teamwork as a learning outcome. The following describes teamwork behaviors, with students report on a five point scale how often their peers (and self) demonstrate each of the behaviors (Never, Sometimes, Usually, Regularly, Always). 
+
+##TeamQ Ratings Radar
+Below is a radar chart that presents the results of your teammates rating of your abilities and your own ratings of your abilities.  The ratings of your teammates have been averaged together for ease of comparison.
+
+```{r spider, fig.showtext = TRUE, fig.width=20, fig.height=14}
+others <- filter(data, To != From, question != 15) %>% 
+  group_by(To, question) %>% 
+  summarize(value = mean(as.numeric(value), na.rm = TRUE)) %>% 
+  mutate(group = "others") %>% 
+  spread(question, value)
+
+own <- filter(data, To == From, question != 15) %>% 
+  mutate(group = "own") %>% 
+  select(To, group, question, value) %>% 
+  spread(question, value) %>% 
+  mutate_at(vars(-To, -group), funs(as.numeric))
+
+if (rowSums(is.na(own))<=13) { 
+
+plot_data <- bind_rows(own, others) 
+  
+plot_data %>%
+  select(2:16) %>%
+  ggradar(., 
+          axis.labels = str_wrap(teamq$items[-15], 25),
+          grid.min = 1,
+          grid.mid = 3,
+          grid.max = 5,
+          grid.label.size = 7,
+          group.point.size = 4,
+          grid.line.width = 0.5,
+          gridline.mid.colour = "grey60",
+          gridline.min.colour = "grey60",
+          gridline.max.colour = "grey60",
+          gridline.label.offset = -0.4,
+          axis.line.colour = "grey95",
+          axis.label.size = 5,
+          axis.label.offset = 1.1,
+          group.line.width = 1,
+          background.circle.colour = "grey95",
+          legend.text.size = 14,
+          values.radar = c("Never","Ususally","Always")) +
+  scale_color_manual(values = c("own" = "firebrick","others" = "dodgerblue"), labels = c("Own Ratings","Other's Ratings")) +
+  theme(axis.text = element_blank(),
+        panel.grid.major = element_blank(),
+        legend.position = c(0.5,0.5),
+        legend.background = element_rect(fill = NA),
+        legend.key = element_rect(fill = NA))
+
+}
+```
+
+\newpage
+
+## Suggestions to Improve
+Part of the TeamQ was to "Write one specific, actionable goal to help your teammate improve their teamwork competency".  Presented below are the goals you wrote for yourself, followed by the goals your teammates wrote for you.
+```{r comments}
+comments <- filter(data, question == 15)
+
+others <- filter(comments, To != From) %>% 
+  mutate(group = "others") %>% 
+  select(group, value) %>% 
+  mutate(value = sprintf("%s\\newline",str_wrap(value,100)))%>% 
+  setNames(c("Feedback","Comment"))
+
+own <- filter(comments, To == From) %>% 
+  mutate(group = "own") %>% 
+  select(group, value) %>% 
+  mutate(value = sprintf("%s\\newline",str_wrap(value,100)))%>% 
+  setNames(c("Feedback","Comment"))
+
+pander(own, keep.line.breaks = TRUE, split.cells = c("20%", "80%"), justify = "left")
+pander(others, keep.line.breaks = TRUE, split.cells = c("20%", "80%"),  justify = "left")
+```

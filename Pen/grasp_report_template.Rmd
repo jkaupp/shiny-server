@@ -9,8 +9,6 @@ geometry: margin=0.2in
 library(tidyverse)
 library(janitor)
 library(magrittr)
-library(readr)
-library(readxl)
 library(knitr)
 library(pander)
 library(stringr)
