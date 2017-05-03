@@ -185,6 +185,8 @@ shinyServer(function(input, output) {
   
   observeEvent(input$processTeamQReport, {
     
+    toggleState("downloadTeamQReport")
+    
     ratings <- split(grasp_data(), grasp_data()[["reviewee_id"]])
     
     tempReport <- "teamq_report_template.Rmd"
@@ -192,10 +194,28 @@ shinyServer(function(input, output) {
     # file.copy("teamq_report_template.Rmd", tempReport, overwrite = TRUE)
     
     # Use rmarkdown::render to produce a pdf report
-    walk2(seq_along(ratings), names(ratings), ~rmarkdown::render(tempReport,
-                                                                 output_file = sprintf("%s.pdf",.y),
-                                                                 params = list(data = sprintf("ratings[[%s]]", .x)),
-                                                                 clean = TRUE))
+    # Need to make a custom function to wrap a progress bar within walk.
+    # 
+    
+    renderBar <- function(x, y){
+      
+      withProgress(message = 'Making Reports', detail = sprintf("Building Student Report %s of %s", x, length(ratings)), min = 1, max = length(ratings), {
+      rmarkdown::render(tempReport,
+                        output_file = sprintf("%s.pdf", y),
+                        params = list(data = sprintf("ratings[[%s]]", x)),
+                        clean = TRUE)
+        incProgress(1)
+      
+    })}
+    
+    walk2(seq_along(ratings), names(ratings), ~renderBar(.x, .y))
+    
+    # walk2(seq_along(ratings), names(ratings), ~rmarkdown::render(tempReport,
+    #                                                              output_file = sprintf("%s.pdf",.y),
+    #                                                              params = list(data = sprintf("ratings[[%s]]", .x)),
+    #                                                              clean = TRUE))
+    
+    on.exit(toggleState("downloadTeamQReport"))
     
   })
   
