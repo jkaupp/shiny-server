@@ -4,9 +4,10 @@ Pen is a reporting writing tool to GRASP (pun intended).  Currently Pen only wor
 
 ## How to use Pen:
 
-1. Click browse to upload the GRASP csv file for the survey results (NOT THE STATUS FILE)
-2. Once it's processed the file, you'll see two tabs activate.  Marks and Comments.  Each tab allows you to quickly select and review marks and feedback for each group.
-3. To download a PDF file version of the marks and comment report (each team on a single page), click the appropriate button.
+1. Select the survey that was run using the GRASP tool. 
+2. Click browse to upload the GRASP csv file for the survey results (NOT THE STATUS FILE)
+3. Once it's processed the file, you'll see tabs appear.  Each tab allows you to quickly select and review results for each group within the survey.
+3. Additionally, you can download PDF reports for your survey. Below the file input you'll see a button appear.  Clicking it will process the reports, then download them to your computer (This can take a moment, so please be patient)
 
 ## If something breaks:
 

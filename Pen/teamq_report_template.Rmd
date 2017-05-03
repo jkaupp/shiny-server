@@ -73,7 +73,7 @@ own <- filter(data, To == From, question != 15) %>%
   spread(question, value) %>% 
   mutate_at(vars(-To, -group), funs(as.numeric))
 
-if (rowSums(is.na(own))<=13) { 
+if (rowSums(is.na(own)) <= 13) { 
 
 plot_data <- bind_rows(own, others) 
   
@@ -118,13 +118,13 @@ comments <- filter(data, question == 15)
 others <- filter(comments, To != From) %>% 
   mutate(group = "others") %>% 
   select(group, value) %>% 
-  mutate(value = sprintf("%s\\newline",str_wrap(value,100)))%>% 
+  mutate(value = sprintf("%s\\newline",str_wrap(value,100))) %>% 
   setNames(c("Feedback","Comment"))
 
 own <- filter(comments, To == From) %>% 
   mutate(group = "own") %>% 
   select(group, value) %>% 
-  mutate(value = sprintf("%s\\newline",str_wrap(value,100)))%>% 
+  mutate(value = sprintf("%s\\newline",str_wrap(value,100))) %>% 
   setNames(c("Feedback","Comment"))
 
 pander(own, keep.line.breaks = TRUE, split.cells = c("20%", "80%"), justify = "left")
