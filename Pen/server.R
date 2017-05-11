@@ -1,4 +1,5 @@
 library(shiny)
+library(shinyjs)
 library(rmarkdown)
 library(janitor)
 library(magrittr)
@@ -197,24 +198,18 @@ shinyServer(function(input, output) {
     # Need to make a custom function to wrap a progress bar within walk.
     # 
     
-    renderBar <- function(x, y){
+    renderBar <- function(x, y, i){
       
-      withProgress(message = 'Making Reports', detail = sprintf("Building Student Report %s of %s", x, length(ratings)), min = 1, max = length(ratings), {
+      withProgress(message = sprintf("Building Student Report %s of %s", x, length(ratings)), min = 1, max = length(ratings), value = x, {
       rmarkdown::render(tempReport,
                         output_file = sprintf("%s.pdf", y),
                         params = list(data = sprintf("ratings[[%s]]", x)),
                         clean = TRUE)
-        incProgress(1)
       
     })}
     
     walk2(seq_along(ratings), names(ratings), ~renderBar(.x, .y))
-    
-    # walk2(seq_along(ratings), names(ratings), ~rmarkdown::render(tempReport,
-    #                                                              output_file = sprintf("%s.pdf",.y),
-    #                                                              params = list(data = sprintf("ratings[[%s]]", .x)),
-    #                                                              clean = TRUE))
-    
+
     on.exit(toggleState("downloadTeamQReport"))
     
   })
