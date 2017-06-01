@@ -9,7 +9,6 @@ library(tidyverse)
 library(DT)
 
 
-
 source("pen.R")
 
 # Define server logic required to draw a histogram
@@ -194,7 +193,7 @@ shinyServer(function(input, output) {
     
     tempReport <- "teamq_report_template.Rmd"
     
-    renderBar <- function(x, y, i){
+    renderBar <- function(x, y){
       
       withProgress(message = sprintf("Building Student Report %s of %s", x, length(ratings)), min = 1, max = length(ratings), value = x, {
       rmarkdown::render(tempReport,

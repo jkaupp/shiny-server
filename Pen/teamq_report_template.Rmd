@@ -67,18 +67,17 @@ others <- filter(data, To != From, question != 15) %>%
   spread(question, value)
 
 own <- filter(data, To == From, question != 15) %>% 
-   mutate(group = "own") %>% 
-   select(To, group, question, value) 
-
+  mutate(group = "own") %>% 
+  select(To, group, question, value) 
+  
 if (nrow(own) != 0) {
   own <- own %>% 
     spread(question, value) %>% 
-    mutate_at(vars(-To, -group), funs(as.numeric)) }
-
-if (rowSums(is.na(own)) <= 13) { 
+    mutate_at(vars(-To, -group), funs(as.numeric))
+  }
 
  if (nrow(own) != 0) {
- plot_data <- bind_rows(own, others) 
+  plot_data <- bind_rows(own, others) 
  } else {
   plot_data <- others
 }
@@ -113,7 +112,6 @@ plot_data %>%
         legend.background = element_rect(fill = NA),
         legend.key = element_rect(fill = NA))
 
-}
 ```
 
 \newpage
