@@ -67,16 +67,25 @@ others <- filter(data, To != From, question != 15) %>%
   spread(question, value)
 
 own <- filter(data, To == From, question != 15) %>% 
-  mutate(group = "own") %>% 
-  select(To, group, question, value) %>% 
-  spread(question, value) %>% 
-  mutate_at(vars(-To, -group), funs(as.numeric))
+   mutate(group = "own") %>% 
+   select(To, group, question, value) 
+
+if (nrow(own) != 0) {
+  own <- own %>% 
+    spread(question, value) %>% 
+    mutate_at(vars(-To, -group), funs(as.numeric)) }
 
 if (rowSums(is.na(own)) <= 13) { 
 
-plot_data <- bind_rows(own, others) 
+ if (nrow(own) != 0) {
+ plot_data <- bind_rows(own, others) 
+ } else {
+  plot_data <- others
+}
+
   
 plot_data %>%
+  ungroup %>% 
   select(2:16) %>%
   ggradar(., 
           axis.labels = str_wrap(teamq$items[-15], 25),

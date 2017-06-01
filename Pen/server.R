@@ -192,12 +192,6 @@ shinyServer(function(input, output) {
     
     tempReport <- "teamq_report_template.Rmd"
     
-    # file.copy("teamq_report_template.Rmd", tempReport, overwrite = TRUE)
-    
-    # Use rmarkdown::render to produce a pdf report
-    # Need to make a custom function to wrap a progress bar within walk.
-    # 
-    
     renderBar <- function(x, y, i){
       
       withProgress(message = sprintf("Building Student Report %s of %s", x, length(ratings)), min = 1, max = length(ratings), value = x, {
