@@ -127,12 +127,18 @@ others <- filter(comments, To != From) %>%
   mutate(value = sprintf("%s\\newline",str_wrap(value,100))) %>% 
   setNames(c("Feedback","Comment"))
 
-own <- filter(comments, To == From) %>% 
-  mutate(group = "own") %>% 
-  select(group, value) %>% 
-  mutate(value = sprintf("%s\\newline",str_wrap(value,100))) %>% 
-  setNames(c("Feedback","Comment"))
+own <- filter(comments, To == From) 
+  
+if (nrow(own) != 0 ) {
+  own %>% 
+    mutate(group = "own") %>% 
+    select(group, value) %>% 
+    mutate(value = sprintf("%s\\newline",str_wrap(value,100))) %>% 
+    setNames(c("Feedback","Comment"))
+  }
 
-pander(own, keep.line.breaks = TRUE, split.cells = c("20%", "80%"), justify = "left")
+if (nrow(own) != 0 ) {
+  pander(own, keep.line.breaks = TRUE, split.cells = c("20%", "80%"), justify = "left")
+  } 
 pander(others, keep.line.breaks = TRUE, split.cells = c("20%", "80%"),  justify = "left")
 ```
