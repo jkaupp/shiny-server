@@ -2,7 +2,7 @@
 title: "TeamQ Report"
 output: pdf_document
 params:
-  data: ratings[[12]]
+  data: ""
 ---
 
 ```{r setup, include = FALSE}
@@ -18,7 +18,7 @@ library(ggradar)
 library(showtext)
 
 
-knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(echo = FALSE)
 
  teamq <- tibble(question = 1:15, 
                   scales = c(rep("Contributes to Team Project", 3),rep("Facilitates Contibutions of Others",3),rep("Planning and Management",3),rep("Fosters a Team Climate",2),rep("Manages Potential Conflict",3),"Suggestions to Improve"),
@@ -39,7 +39,7 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 ```
 
 
-```{r data}
+```{r data, warning = FALSE, message = FALSE}
 data <- eval(parse(text = params$data)) %>%
     select_(~team, ~reviewer_last_name, ~reviewer_first_name, ~reviewee_last_name, ~reviewee_first_name, ~contains("q")) %>% 
     unite(reviewer_name, reviewer_first_name, reviewer_last_name, sep = " ") %>% 
@@ -62,7 +62,7 @@ Team-Q was developed for self and peer assessment of an individual's teamwork sk
 ##TeamQ Ratings Radar
 Below is a radar chart that presents the results of your teammates rating of your abilities and your own ratings of your abilities.  The ratings of your teammates have been averaged together for ease of comparison.
 
-```{r spider, fig.showtext = TRUE, fig.width = 20, fig.height = 14}
+```{r spider, fig.showtext = TRUE, fig.width = 20, fig.height = 14, warning = FALSE, message = FALSE}
 others <- filter(data, To != From, question != 15) %>% 
   group_by(To, question) %>% 
   summarize(value = mean(as.numeric(value), na.rm = TRUE)) %>% 
@@ -127,35 +127,36 @@ if (nrow(own) != 0) {
 
 ## Suggestions to Improve
 Part of the TeamQ was to "Write one specific, actionable goal to help your teammate improve their teamwork competency".  Presented below are the goals you wrote for yourself, followed by the goals your teammates wrote for you.
-```{r comments}
+```{r comments, warning = FALSE, message = FALSE}
 comments <- filter(data, question == 15)
-
+ 
 others <- filter(comments, To != From) 
-
+ 
 if (nrow(others) != 0) {
-  others <- others%>% 
-    ungroup() %>% 
-    mutate(group = "others") %>% 
-    select(group, value) %>% 
-    mutate(value = sprintf("%s\\newline",str_wrap(value,100))) %>% 
-    setNames(c("Feedback","Comment")) 
+  others <- others %>%
+    ungroup() %>%
+    mutate(group = "others") %>%
+    select(group, value) %>%
+    mutate(value = sprintf("%s\\newline",str_wrap(value,100))) %>%
+    setNames(c("Feedback","Comment"))
   }
 
-own <- filter(comments, To == From) 
-  
+own <- filter(comments, To == From)
+
 if (nrow(own) != 0 ) {
-  own <- own %>% 
-    ungroup() %>% 
-    mutate(group = "own") %>% 
-    select(group, value) %>% 
-    mutate(value = sprintf("%s\\newline",str_wrap(value,100))) %>% 
+  own <- own %>%
+    ungroup() %>%
+    mutate(group = "own") %>%
+    select(group, value) %>%
+    mutate(value = sprintf("%s\\newline",str_wrap(value,100))) %>%
     setNames(c("Feedback","Comment"))
   }
 
 if (nrow(own) != 0) {
-  pander(own, keep.line.breaks = TRUE, split.cells = c("20%", "80%"), justify = "left")
-} 
+  pander(as.data.frame(own), keep.line.breaks = TRUE, split.cells = c("20%", "80%"), justify = "left")
+}
+
 if (nrow(others) != 0) {
-pander(others, keep.line.breaks = TRUE, split.cells = c("20%", "80%"),  justify = "left")
+  pander(as.data.frame(others), keep.line.breaks = TRUE, split.cells = c("20%", "80%"),  justify = "left")
 }
 ```
