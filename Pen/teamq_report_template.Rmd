@@ -83,11 +83,13 @@ if (nrow(own) != 0) {
   plot_data <- bind_rows(own, others) 
  } else {
   plot_data <- others
-}
+ }
+
+  choice <- plot_data[["group"]]
   
-  values <- c("own" = "firebrick", "others" = "dodgerblue")[plot_data[["group"]]]
+  values <- c("own" = "firebrick", "others" = "dodgerblue")[choice]
   
-  labels <- c("own" = "Own Ratings","others" = "Other's Ratings")[plot_data[["group"]]]
+  labels <- c("own" = "Own Ratings","others" = "Other's Ratings")[choice]
   
   plot_data %>%
     ungroup %>% 
@@ -129,7 +131,7 @@ Part of the TeamQ was to "Write one specific, actionable goal to help your teamm
 comments <- filter(data, question == 15)
 
 others <- filter(comments, To != From) %>% 
-  ungroup %>% 
+  ungroup() %>% 
   mutate(group = "others") %>% 
   select(group, value) %>% 
   mutate(value = sprintf("%s\\newline",str_wrap(value,100))) %>% 
@@ -138,8 +140,8 @@ others <- filter(comments, To != From) %>%
 own <- filter(comments, To == From) 
   
 if (nrow(own) != 0 ) {
-  own %>% 
-    ungroup %>% 
+  own <- own %>% 
+    ungroup() %>% 
     mutate(group = "own") %>% 
     select(group, value) %>% 
     mutate(value = sprintf("%s\\newline",str_wrap(value,100))) %>% 
@@ -148,6 +150,6 @@ if (nrow(own) != 0 ) {
 
 if (nrow(own) != 0 ) {
   pander(own, keep.line.breaks = TRUE, split.cells = c("20%", "80%"), justify = "left")
-  } 
+} 
 pander(others, keep.line.breaks = TRUE, split.cells = c("20%", "80%"),  justify = "left")
 ```
