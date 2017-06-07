@@ -110,5 +110,3 @@ make_tables <- function(x, survey, type) {
          "apsc" = make_apsc_tables(x, type = type),
          "teamq" = make_teamq_tables(x))
 }
-
-

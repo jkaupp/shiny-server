@@ -15,6 +15,7 @@ library(pander)
 library(stringr)
 library(stringi)
 library(ggradar)
+library(showtext)
 
 
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
@@ -51,7 +52,9 @@ data <- eval(parse(text = params$data)) %>%
     left_join(teamq, by = "question") %>% 
     rename(To = reviewee_name,
            From = reviewer_name,
-           team_number  = team)
+           team_number  = team) %>% 
+    group_by(From) %>% 
+    filter(!is.na(value))
 ```
 
 Team-Q was developed for self and peer assessment of an individual's teamwork skills. It is designed for undergraduate education as a practical method for assessing teamwork as a learning outcome. The following describes teamwork behaviors, with students report on a five point scale how often their peers (and self) demonstrate each of the behaviors (Never, Sometimes, Usually, Regularly, Always). 
@@ -59,7 +62,7 @@ Team-Q was developed for self and peer assessment of an individual's teamwork sk
 ##TeamQ Ratings Radar
 Below is a radar chart that presents the results of your teammates rating of your abilities and your own ratings of your abilities.  The ratings of your teammates have been averaged together for ease of comparison.
 
-```{r spider, fig.showtext = TRUE, fig.width=20, fig.height=14}
+```{r spider, fig.showtext = TRUE, fig.width = 20, fig.height = 14}
 others <- filter(data, To != From, question != 15) %>% 
   group_by(To, question) %>% 
   summarize(value = mean(as.numeric(value), na.rm = TRUE)) %>% 
@@ -81,36 +84,40 @@ if (nrow(own) != 0) {
  } else {
   plot_data <- others
 }
-
   
-plot_data %>%
-  ungroup %>% 
-  select(2:16) %>%
-  ggradar(., 
-          axis.labels = str_wrap(teamq$items[-15], 25),
-          grid.min = 1,
-          grid.mid = 3,
-          grid.max = 5,
-          grid.label.size = 7,
-          group.point.size = 4,
-          grid.line.width = 0.5,
-          gridline.mid.colour = "grey60",
-          gridline.min.colour = "grey60",
-          gridline.max.colour = "grey60",
-          gridline.label.offset = -0.4,
-          axis.line.colour = "grey95",
-          axis.label.size = 5,
-          axis.label.offset = 1.1,
-          group.line.width = 1,
-          background.circle.colour = "grey95",
-          legend.text.size = 14,
-          values.radar = c("Never","Ususally","Always")) +
-  scale_color_manual(values = c("own" = "firebrick","others" = "dodgerblue"), labels = c("Own Ratings","Other's Ratings")) +
-  theme(axis.text = element_blank(),
-        panel.grid.major = element_blank(),
-        legend.position = c(0.5,0.5),
-        legend.background = element_rect(fill = NA),
-        legend.key = element_rect(fill = NA))
+  values <- c("own" = "firebrick", "others" = "dodgerblue")[plot_data[["group"]]]
+  
+  labels <- c("own" = "Own Ratings","others" = "Other's Ratings")[plot_data[["group"]]]
+  
+  plot_data %>%
+    ungroup %>% 
+    select(2:16) %>%
+    ggradar(., 
+            axis.labels = str_wrap(teamq$items[-15], 25),
+            grid.min = 1,
+            grid.mid = 3,
+            grid.max = 5,
+            font.radar = "Oxygen",
+            grid.label.size = 7,
+            group.point.size = 4,
+            grid.line.width = 0.5,
+            gridline.mid.colour = "grey60",
+            gridline.min.colour = "grey60",
+            gridline.max.colour = "grey60",
+            gridline.label.offset = -0.4,
+            axis.line.colour = "grey95",
+            axis.label.size = 5,
+            axis.label.offset = 1.1,
+            group.line.width = 1,
+            background.circle.colour = "grey95",
+            legend.text.size = 14,
+            values.radar = c("Never","Ususally","Always")) +
+    scale_color_manual(values = values, labels = labels) +
+    theme(axis.text = element_blank(),
+          panel.grid.major = element_blank(),
+          legend.position = c(0.5,0.5),
+          legend.background = element_rect(fill = NA),
+          legend.key = element_rect(fill = NA))
 
 ```
 
@@ -122,6 +129,7 @@ Part of the TeamQ was to "Write one specific, actionable goal to help your teamm
 comments <- filter(data, question == 15)
 
 others <- filter(comments, To != From) %>% 
+  ungroup %>% 
   mutate(group = "others") %>% 
   select(group, value) %>% 
   mutate(value = sprintf("%s\\newline",str_wrap(value,100))) %>% 
@@ -131,6 +139,7 @@ own <- filter(comments, To == From)
   
 if (nrow(own) != 0 ) {
   own %>% 
+    ungroup %>% 
     mutate(group = "own") %>% 
     select(group, value) %>% 
     mutate(value = sprintf("%s\\newline",str_wrap(value,100))) %>% 
