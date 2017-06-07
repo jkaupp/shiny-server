@@ -40,7 +40,8 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 
 
 ```{r data}
-data <- eval(parse(text = params$data)) %>%
+#data <- eval(parse(text = params$data)) %>%
+  data <- ratings[[1]] %>% 
     select_(~team, ~reviewer_last_name, ~reviewer_first_name, ~reviewee_last_name, ~reviewee_first_name, ~contains("q")) %>% 
     unite(reviewer_name, reviewer_first_name, reviewer_last_name, sep = " ") %>% 
     unite(reviewee_name, reviewee_first_name, reviewee_last_name, sep = " ") %>% 
@@ -70,6 +71,7 @@ others <- filter(data, To != From, question != 15) %>%
   spread(question, value)
 
 own <- filter(data, To == From, question != 15) %>% 
+  ungroup() %>% 
   mutate(group = "own") %>% 
   select(To, group, question, value) 
   
@@ -133,7 +135,7 @@ comments <- filter(data, question == 15)
 others <- filter(comments, To != From) 
 
 if (nrow(others) != 0) {
-  others <- others%>% 
+  others <- others %>% 
     ungroup() %>% 
     mutate(group = "others") %>% 
     select(group, value) %>% 
