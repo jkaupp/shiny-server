@@ -130,12 +130,16 @@ Part of the TeamQ was to "Write one specific, actionable goal to help your teamm
 ```{r comments}
 comments <- filter(data, question == 15)
 
-others <- filter(comments, To != From) %>% 
-  ungroup() %>% 
-  mutate(group = "others") %>% 
-  select(group, value) %>% 
-  mutate(value = sprintf("%s\\newline",str_wrap(value,100))) %>% 
-  setNames(c("Feedback","Comment"))
+others <- filter(comments, To != From) 
+
+if (nrow(others) != 0) {
+  others <- others%>% 
+    ungroup() %>% 
+    mutate(group = "others") %>% 
+    select(group, value) %>% 
+    mutate(value = sprintf("%s\\newline",str_wrap(value,100))) %>% 
+    setNames(c("Feedback","Comment")) 
+  }
 
 own <- filter(comments, To == From) 
   
@@ -148,8 +152,10 @@ if (nrow(own) != 0 ) {
     setNames(c("Feedback","Comment"))
   }
 
-if (nrow(own) != 0 ) {
+if (nrow(own) != 0) {
   pander(own, keep.line.breaks = TRUE, split.cells = c("20%", "80%"), justify = "left")
 } 
+if (nrow(others) != 0) {
 pander(others, keep.line.breaks = TRUE, split.cells = c("20%", "80%"),  justify = "left")
+}
 ```
