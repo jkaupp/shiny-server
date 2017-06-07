@@ -155,9 +155,9 @@ if (nrow(own) != 0 ) {
   }
 
 if (nrow(own) != 0) {
-  pander(own, keep.line.breaks = TRUE, split.cells = c("20%", "80%"), justify = "left")
+  pander(as.data.frame(own), keep.line.breaks = TRUE, split.cells = c("20%", "80%"), justify = "left")
 } 
 if (nrow(others) != 0) {
-pander(others, keep.line.breaks = TRUE, split.cells = c("20%", "80%"),  justify = "left")
+pander(as.data.frame(others), keep.line.breaks = TRUE, split.cells = c("20%", "80%"),  justify = "left")
 }
 ```
