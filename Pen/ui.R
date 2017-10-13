@@ -2,12 +2,12 @@ library(shiny)
 library(shinyjs)
 
 shinyUI(
-  navbarPage(tags$div(class = "pen_header", tagList(useShinyjs(),tags$span("Pen", class = "pen"), tags$span(": A reporting companion to GRASP", class = "pen_sub"))), header = tagList(includeCSS("skeleton.css"), includeCSS("normalize.css")), id = "pen_navbar", windowTitle = "Pen: A reporting companion to GRASP",
+  navbarPage(tags$div(class = "pen_header", tagList(useShinyjs(), tags$span("Pen", class = "pen"), tags$span(": A reporting companion to GRASP", class = "pen_sub"))), header = tagList(includeCSS("skeleton.css"), includeCSS("normalize.css")), id = "pen_navbar", windowTitle = "Pen: A reporting companion to GRASP",
              
   tabPanel("Data",value = "data",
   sidebarLayout(
     sidebarPanel(width = 3,
-                 selectInput("survey_type", "What Survey?", list("Choose" = "", "APSC Peer Assessment" = "apsc","TeamQ Survey" = "teamq")),
+                 selectInput("survey_type", "What Survey?", list("Choose" = "", "APSC Peer Assessment" = "apsc","TeamQ Student Report" = "teamq_student", "TeamQ Diagnostic Report" = "teamq_diagnostic")),
                  fileInput("grasp_in", "Select GRASP Results File:", accept = c("text/csv","text/comma-separated-values, text/plain", ".csv")),
                  tags$hr(),
                  uiOutput("buttons")

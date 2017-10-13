@@ -92,7 +92,7 @@ shinyServer(function(input, output) {
   
   output$markquestions <- renderUI({
 
-    if (input$survey_type == "teamq") {
+    if (input$survey_type == "teamq_student") {
       selectInput('scale', 'TeamQ Scale:', c("Contributes to Team Project", "Facilitates Contibutions of Others", "Planning and Management", "Fosters a Team Climate", "Manages Potential Conflict","Suggestions to Improve"))
     } else {
     
@@ -126,12 +126,14 @@ shinyServer(function(input, output) {
            tags$br(),
            tags$br(),
       downloadButton("downloadCommentReport", "Download Comment Report", class = "pen_button"))
-    } else if (input$survey_type == "teamq" & !is.null(input$grasp_in)) {
+    } else if (input$survey_type == "teamq_student" & !is.null(input$grasp_in)) {
       list(actionButton("processTeamQReport", "Process Team Q Report", class = "pen_button"),
            tags$br(),
            tags$br(),
       downloadButton("downloadTeamQReport", "Download Team Q Report", class = "pen_button"))
-    }
+    } else if (input$survey_type == "teamq_diagnostic" & !is.null(input$grasp_in)) {
+      list(downloadButton("downloadTeamQdiagnostic", "Download Team Q Report", class = "pen_button"))
+    } 
   })
   
 ## Download Handlers ----  
@@ -208,5 +210,31 @@ shinyServer(function(input, output) {
     on.exit(toggleState("downloadTeamQReport"))
     
   })
+  
+  output$downloadTeamQdiagnostic <- downloadHandler(
+    filename = function() {
+      sprintf("TeamQ Diagnostic %s.pdf", Sys.Date())
+    },
+    content = function(file) {
+      
+      Cairo::CairoPDF(file, width = 8.5, height = 11, onefile = TRUE)
+      showtext.begin()
+      grasp_data() %>% 
+        mutate(team_no = team) %>% 
+        nest(-team_no) %>% 
+        mutate(flag = map_lgl(data, flag_teams)) %>% 
+        arrange(desc(flag)) %>% 
+        select(data) %>% 
+        flatten() %>% 
+        walk(teamq_plot_diagnostics)
+      showtext.end()
+      dev.off()
+      
+    },
+    contentType = "application/pdf"
+  )
+  
+ 
+  
   
 })
