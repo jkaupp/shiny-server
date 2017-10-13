@@ -4,6 +4,7 @@ Pen is a report writing tool to GRASP (pun intended).  Currently Pen works for t
 
 1. The APSC 200 Peer Evaluation Survey
 2. TeamQ: Self and Peer Assessment of Teamwork Skills
+3. TeamQ Diagnostic for Instructors
 
 ## How to use Pen:
 
