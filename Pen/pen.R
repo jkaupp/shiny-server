@@ -277,7 +277,7 @@ teamq_plot_diagnostics <- function(x){
     geom_text(aes(label = value), family = "Scope One") +
     scale_x_discrete(labels = function(x) stringr::str_wrap(x, 5)) +
     viridis::scale_fill_viridis(limits = c(0, plyr::round_any(max(total$value, na.rm = TRUE), 10, ceiling)), na.value = "white", breaks = seq(0, plyr::round_any(max(total$value, na.rm = TRUE), 10, ceiling),by = 5)) +
-    jkmisc::theme_jk() +
+    theme_minimal() +
     labs(x = "To",
          y = "From",
          title = "Points Distribution",

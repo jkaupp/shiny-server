@@ -217,8 +217,7 @@ shinyServer(function(input, output) {
     },
     content = function(file) {
       
-      Cairo::CairoPDF(file, width = 8.5, height = 11, onefile = TRUE)
-      showtext.begin()
+      pdf(file, width = 8.5, height = 11, onefile = TRUE)
       grasp_data() %>% 
         mutate(team_no = team) %>% 
         nest(-team_no) %>% 
@@ -227,7 +226,6 @@ shinyServer(function(input, output) {
         select(data) %>% 
         flatten() %>% 
         walk(teamq_plot_diagnostics)
-      showtext.end()
       dev.off()
       
     },
