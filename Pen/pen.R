@@ -214,10 +214,10 @@ teamq_plot_diagnostics <- function(x){
   if (nrow(filter(survey_data, question %in% 13:14,  type == "comment", !is.na(value))) > 0) {
     analyze_sentiment <- filter(survey_data, question %in% 13:14,  type == "comment")  %>%
       unnest_tokens(word, value) %>%
-      anti_join(stop_words, by = "word") %>% 
+      anti_join(tidytext::stop_words, by = "word") %>% 
       inner_join(filter(sentiments,lexicon == "bing"), by = "word") %>% 
       group_by(question, from, to) %>% 
-      count(word, sentiment)
+      dplyr::count(word, sentiment)
     
     if (nrow(analyze_sentiment) != 0) {
       
