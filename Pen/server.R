@@ -5,9 +5,17 @@ library(janitor)
 library(magrittr)
 library(readr)
 library(stringi)
-library(tidyverse)
+library(stringr)
+library(viridis)
+library(dplyr)
+library(plyr)
+library(purrr)
+library(tidyr)
+library(tidytext)
 library(DT)
-
+library(grid)
+library(gridExtra)
+library(forcats)
 
 source("pen.R")
 
@@ -213,9 +221,10 @@ shinyServer(function(input, output) {
   
   output$downloadTeamQdiagnostic <- downloadHandler(
     filename = function() {
-      sprintf("TeamQ Diagnostic %s.pdf", Sys.Date())
+      sprintf("TeamQDiagnostic %s.pdf", Sys.Date())
     },
     content = function(file) {
+      toggleState("downloadTeamQReport")
       
       pdf(file, width = 8.5, height = 11, onefile = TRUE)
       grasp_data() %>% 
@@ -226,6 +235,8 @@ shinyServer(function(input, output) {
         select(data) %>% 
         flatten() %>% 
         walk(teamq_plot_diagnostics)
+      
+      toggleState("downloadTeamQReport")
       dev.off()
       
     },

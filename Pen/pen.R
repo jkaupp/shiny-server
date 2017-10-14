@@ -192,7 +192,7 @@ teamq_plot_diagnostics <- function(x){
     select(team, contains("reviewer"), contains("reviewee"), -contains("d2l"), matches("q\\d+")) %>% 
     gather(question, value, -1:-7) %>% 
     separate(question, into = c("question","type"), sep = "\\_", fill = "right") %>% 
-    mutate(question = readr::parse_number(question),
+    mutate(question = parse_number(question),
            to = sprintf("%s %s", reviewee_first_name, reviewee_last_name),
            from = sprintf("%s %s", reviewer_first_name, reviewer_last_name),
            type = ifelse(question == 14, "comment", type),
@@ -213,9 +213,9 @@ teamq_plot_diagnostics <- function(x){
   
   if (nrow(filter(survey_data, question %in% 13:14,  type == "comment", !is.na(value))) > 0) {
     analyze_sentiment <- filter(survey_data, question %in% 13:14,  type == "comment")  %>%
-      tidytext::unnest_tokens(word, value) %>%
-      anti_join(tidytext::stop_words, by = "word") %>% 
-      inner_join(filter(tidytext::sentiments,lexicon == "bing"), by = "word") %>% 
+      unnest_tokens(word, value) %>%
+      anti_join(stop_words, by = "word") %>% 
+      inner_join(filter(sentiments,lexicon == "bing"), by = "word") %>% 
       group_by(question, from, to) %>% 
       count(word, sentiment)
     
@@ -243,7 +243,7 @@ teamq_plot_diagnostics <- function(x){
       comment_sent <- filter(survey_data, question %in% 13:14, type == "comment") %>% 
         left_join(analyze_sentiment, by = c("question", "to", "from")) %>% 
         mutate(net = factor(net, c("Very Negative","Slightly Negative", "Neutral", "Slightly Positive", "Very Positive"))) %>% 
-        mutate(net = forcats::fct_explicit_na(net, "Neutral")) %>% 
+        mutate(net = fct_explicit_na(net, "Neutral")) %>% 
         mutate(id = as.character(row_number(team)),
                value = gsub("\\'", "", value)) %>% 
         replace_na(list(value = "No Comment Provided"))  
@@ -252,7 +252,7 @@ teamq_plot_diagnostics <- function(x){
       comment_sent <- filter(survey_data, question %in% 13:14, type == "comment") %>% 
         mutate(net = NA_character_) %>% 
         mutate(net = factor(net, c("Very Negative","Slightly Negative", "Neutral", "Slightly Positive", "Very Positive"))) %>% 
-        mutate(net = forcats::fct_explicit_na(net, "Neutral")) %>% 
+        mutate(net = fct_explicit_na(net, "Neutral")) %>% 
         replace_na(list(value = "No Comment Provided"))
       
     }
@@ -261,9 +261,9 @@ teamq_plot_diagnostics <- function(x){
   
   mark_plot <-  ggplot(marks, aes(x = to, y = from, fill = value)) +
     geom_tile(color = "grey20") +
-    viridis::scale_fill_viridis(limits = c("Never", "Sometimes", "Usually", "Often", "Always"), na.value = "white", discrete = TRUE) +
+    scale_fill_viridis(limits = c("Never", "Sometimes", "Usually", "Often", "Always"), na.value = "white", discrete = TRUE) +
     facet_wrap(~scales) +
-    scale_x_discrete(labels = function(x) stringr::str_wrap(x, 5)) +
+    scale_x_discrete(labels = function(x) str_wrap(x, 5)) +
     labs(x = "To",
          y = "From",
          title = "Team Q Subscales Heatmap",
@@ -275,8 +275,8 @@ teamq_plot_diagnostics <- function(x){
   total <- ggplot(total, aes(x = to, y = from, fill = value)) +
     geom_tile(color = "grey20") +
     geom_text(aes(label = value)) +
-    scale_x_discrete(labels = function(x) stringr::str_wrap(x, 5)) +
-    viridis::scale_fill_viridis(limits = c(0, plyr::round_any(max(total$value, na.rm = TRUE), 10, ceiling)), na.value = "white", breaks = seq(0, plyr::round_any(max(total$value, na.rm = TRUE), 10, ceiling),by = 5)) +
+    scale_x_discrete(labels = function(x) str_wrap(x, 5)) +
+    scale_fill_viridis(limits = c(0, round_any(max(total$value, na.rm = TRUE), 10, ceiling)), na.value = "white", breaks = seq(0, round_any(max(total$value, na.rm = TRUE), 10, ceiling),by = 5)) +
     theme_minimal() +
     labs(x = "To",
          y = "From",
@@ -291,21 +291,21 @@ teamq_plot_diagnostics <- function(x){
     comments <- ggplot(comment_sent, aes(x = to, y = from)) +
       geom_tile(aes(fill = net), color = "grey20") +
       facet_wrap(~question, labeller = as_labeller(lookup)) +
-      scale_x_discrete(labels = function(x) stringr::str_wrap(x, 5)) +
+      scale_x_discrete(labels = function(x) str_wrap(x, 5)) +
       labs(x = "To",
            y = "From",
            title = "Sentiment analysis of comments",
            subtitle = "Net sentiment assigned by frequency of positive/negative words") +
-      scale_fill_manual("Net Sentiment", values = setNames(RColorBrewer::brewer.pal(5, "RdBu"), c("Very Negative","Slightly Negative", "Neutral", "Slightly Positive", "Very Positive")), limits = c("Very Negative","Slightly Negative", "Neutral", "Slightly Positive", "Very Positive"), na.value = "white") +
+      scale_fill_manual("Net Sentiment", values = setNames(brewer.pal(5, "RdBu"), c("Very Negative","Slightly Negative", "Neutral", "Slightly Positive", "Very Positive")), limits = c("Very Negative","Slightly Negative", "Neutral", "Slightly Positive", "Very Positive"), na.value = "white") +
       theme_minimal() +
       theme(legend.position = "bottom",
             panel.grid = element_blank())
   } 
   
   if (exists("comments")) {
-    gridExtra::grid.arrange(mark_plot, total, comments,  nrow = 3, top = sprintf("Team %s", team)) 
+    grid.arrange(mark_plot, total, comments,  nrow = 3, top = sprintf("Team %s", team)) 
   } else {
-    gridExtra::grid.arrange(mark_plot, total, nrow = 2, top = sprintf("Team %s", team))
+    grid.arrange(mark_plot, total, nrow = 2, top = sprintf("Team %s", team))
   }
 }
 
