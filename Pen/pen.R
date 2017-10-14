@@ -274,7 +274,7 @@ teamq_plot_diagnostics <- function(x){
   
   total <- ggplot(total, aes(x = to, y = from, fill = value)) +
     geom_tile(color = "grey20") +
-    geom_text(aes(label = value), family = "Scope One") +
+    geom_text(aes(label = value)) +
     scale_x_discrete(labels = function(x) stringr::str_wrap(x, 5)) +
     viridis::scale_fill_viridis(limits = c(0, plyr::round_any(max(total$value, na.rm = TRUE), 10, ceiling)), na.value = "white", breaks = seq(0, plyr::round_any(max(total$value, na.rm = TRUE), 10, ceiling),by = 5)) +
     theme_minimal() +
