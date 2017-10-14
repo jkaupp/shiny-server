@@ -7,8 +7,8 @@ library(readr)
 library(stringi)
 library(stringr)
 library(viridis)
-library(dplyr)
 library(plyr)
+library(dplyr)
 library(purrr)
 library(tidyr)
 library(tidytext)
@@ -16,6 +16,8 @@ library(DT)
 library(grid)
 library(gridExtra)
 library(forcats)
+library(ggplot2)
+library(RColorBrewer)
 
 source("pen.R")
 
@@ -236,9 +238,10 @@ shinyServer(function(input, output) {
         select(data) %>% 
         flatten() %>% 
         walk(teamq_plot_diagnostics)
+   
+      dev.off()
       
       toggleState("downloadTeamQReport")
-      dev.off()
       
     },
     contentType = "application/pdf"

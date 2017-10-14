@@ -63,8 +63,8 @@ make_teamq_tables <- function(x) {
     unite(reviewee_name, reviewee_first_name, reviewee_last_name, sep = " ") %>% 
     mutate(reviewee_name = factor(reviewee_name,levels = unique(reviewee_name))) %>% 
     mutate(reviewer_name = factor(reviewer_name,levels = unique(reviewer_name))) %>% 
-    mutate_if(grepl("q15", names(.)), funs(stri_replace_all_regex(., "[\r]" , ""))) %>% 
-    mutate_if(grepl("q15", names(.)), funs(stri_replace_all_regex(., "[^[:alnum:]]", " "))) %>%
+    mutate_if(is.character, funs(stri_replace_all_regex(., "[\r]" , ""))) %>% 
+    mutate_if(is.character, funs(stri_replace_all_regex(., "[^[:alnum:]]", " "))) %>%
     mutate_if(is.numeric, function(x) factor(x, 1:5, c("Never","Sometimes","Ususally","Regularly","Always"))) %>% 
     gather(question, value, contains("q")) %>% 
     mutate(question = parse_number(question)) %>% 
@@ -138,8 +138,8 @@ make_teamq_diag_tables <- function(x) {
     unite(reviewee_name, reviewee_first_name, reviewee_last_name, sep = " ") %>% 
     mutate(reviewee_name = factor(reviewee_name,levels = unique(reviewee_name))) %>% 
     mutate(reviewer_name = factor(reviewer_name,levels = unique(reviewer_name))) %>% 
-    mutate_if(grepl("q15", names(.)), funs(stri_replace_all_regex(., "[\r]" , ""))) %>% 
-    mutate_if(grepl("q15", names(.)), funs(stri_replace_all_regex(., "[^[:alnum:]]", " "))) %>%
+    mutate_if(is.character, funs(stri_replace_all_regex(., "[\r]" , ""))) %>% 
+    mutate_if(is.character, funs(stri_replace_all_regex(., "[^[:alnum:]]", " "))) %>%
     mutate_if(is.numeric, function(x) factor(x, 1:5, c("Never","Sometimes","Ususally","Regularly","Always"))) %>% 
     gather(question, value, contains("q")) %>% 
     mutate(question = parse_number(question)) %>% 
@@ -186,10 +186,10 @@ teamq_plot_diagnostics <- function(x){
   
   lookup <- setNames(teamq$scales,teamq$question)
   
-  team <- unique(x[["team"]])
+  team_no <- unique(x[["team"]])
   
   survey_data <- x %>% 
-    select(team, contains("reviewer"), contains("reviewee"), -contains("d2l"), matches("q\\d+")) %>% 
+    dplyr::select(team, dplyr::contains("reviewer"), dplyr::contains("reviewee"), -dplyr::contains("d2l"), dplyr::matches("q\\d+")) %>% 
     gather(question, value, -1:-7) %>% 
     separate(question, into = c("question","type"), sep = "\\_", fill = "right") %>% 
     mutate(question = parse_number(question),
@@ -303,9 +303,9 @@ teamq_plot_diagnostics <- function(x){
   } 
   
   if (exists("comments")) {
-    grid.arrange(mark_plot, total, comments,  nrow = 3, top = sprintf("Team %s", team)) 
+    grid.arrange(mark_plot, total, comments,  nrow = 3, top = sprintf("Team %s", team_no)) 
   } else {
-    grid.arrange(mark_plot, total, nrow = 2, top = sprintf("Team %s", team))
+    grid.arrange(mark_plot, total, nrow = 2, top = sprintf("Team %s", team_no))
   }
 }
 
