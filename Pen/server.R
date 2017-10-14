@@ -227,6 +227,7 @@ shinyServer(function(input, output) {
       toggleState("downloadTeamQReport")
       
       pdf(file, width = 8.5, height = 11, onefile = TRUE)
+      
       grasp_data() %>% 
         mutate(team_no = team) %>% 
         nest(-team_no) %>% 
