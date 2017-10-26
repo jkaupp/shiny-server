@@ -8,14 +8,18 @@ apsc_mark_tables <- function(x, var) {
     mutate(reviewee_name = factor(reviewee_name,levels = unique(reviewee_name))) %>% 
     mutate(reviewer_name = factor(reviewer_name,levels = unique(reviewer_name))) %>% 
     spread_("reviewee_name", var) %>% 
-    mutate_each(funs(as.character), reviewer_name)
+    mutate_at(reviewer_name, funs(as.character))
   
-  average <- summarize_each(main, funs(mean(., na.rm = TRUE)), -reviewer_name) %>% 
+  names <- names(main)[-1]
+  
+  main <- clean_names(main)
+  
+  summary <- summarize_at(main, -1, funs(mean), na.rm = TRUE) %>% 
     mutate(reviewer_name = "Average") %>% 
-    mutate_each(funs(trunc), -reviewer_name)
+    mutate_if(is.numeric, funs(trunc))
   
-  bind_rows(main, average) %>% 
-    set_names(c("Ratings For", names(.)[-1])) 
+  bind_rows(main, summary) %>% 
+    set_names(c("Ratings For", names)) 
   
 }
 
