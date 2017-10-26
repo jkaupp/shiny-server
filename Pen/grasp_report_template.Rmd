@@ -72,11 +72,11 @@ if (params$type == "mark") {
   var1 <- "q1_mark"
   var2 <- "q2_mark"
   
-  table1 <- x %>%
+  table1 <- grasp_data() %>%
     split(.$team) %>%
     map(~ grasp_mark_tables(.x, var = var1))
   
-  table2 <- x %>%
+  table2 <- grasp_data() %>%
     split(.$team) %>%
     map(~ grasp_mark_tables(.x, var = var2))
   
