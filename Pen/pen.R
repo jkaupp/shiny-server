@@ -202,6 +202,7 @@ teamq_plot_diagnostics <- function(x){
            type = ifelse(question == 14, "comment", type),
            value = gsub("#NAME?", NA_character_, value)) 
   
+  if (!all(is.na(survey_data[['value']]))) {
   
   total <- filter(survey_data, question == 13, type == "mark") %>% 
     left_join(teamq, by = "question") %>% 
@@ -309,7 +310,18 @@ teamq_plot_diagnostics <- function(x){
   if (exists("comments")) {
     grid.arrange(mark_plot, total, comments,  nrow = 3, top = sprintf("Team %s", team_no)) 
   } else {
-    grid.arrange(mark_plot, total, nrow = 2, top = sprintf("Team %s", team_no))
+    grid.arrange(mark_plot, total, nrow = 2, top = sprintf("Team %s", team_no)) 
+  }
+  
+  } else {
+    
+    output <- textGrob(label = sprintf("No member of team %s has completed the GRASP survey", team_no),
+                   x = 0.5,
+                   y = 0.5,
+                   gp = gpar(col = "Red"))
+    
+    grid.draw(output)
+     
   }
 }
 
