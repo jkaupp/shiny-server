@@ -207,12 +207,13 @@ teamq_plot_diagnostics <- function(x){
   total <- filter(survey_data, question == 13, type == "mark") %>% 
     left_join(teamq, by = "question") %>% 
     group_by(team, to, from, scales) %>% 
-    summarize(value = mean(as.numeric(value), na.rm = TRUE)) 
+    dplyr::summarize(value = mean(as.numeric(value), na.rm = TRUE)) %>% 
+    mutate(value = ifelse(is.nan(value), NA_real_, value))
   
   marks <- filter(survey_data, !(question %in% 13:14)) %>% 
     left_join(teamq, by = "question") %>% 
     group_by(team, to, from, scales) %>% 
-    summarize(value = mean(as.numeric(value), na.rm = TRUE)) %>% 
+    dplyr::summarize(value = mean(as.numeric(value), na.rm = TRUE)) %>% 
     mutate(value = cut(value, breaks = 0:5, labels =  c("Never", "Sometimes", "Usually", "Often", "Always")))
   
   
@@ -220,7 +221,7 @@ teamq_plot_diagnostics <- function(x){
     analyze_sentiment <- filter(survey_data, question %in% 13:14,  type == "comment")  %>%
       unnest_tokens(word, value) %>%
       anti_join(tidytext::stop_words, by = "word") %>% 
-      inner_join(filter(sentiments,lexicon == "bing"), by = "word") %>% 
+      inner_join(filter(sentiments, lexicon == "bing"), by = "word") %>% 
       group_by(question, from, to) %>% 
       dplyr::count(word, sentiment)
     
@@ -239,7 +240,8 @@ teamq_plot_diagnostics <- function(x){
       
       
       analyze_sentiment <- analyze_sentiment %>% 
-        summarize(net =  case_when(sum(net) < -2 ~ "Very Negative",
+        dplyr::group_by(question, to , from) %>% 
+        dplyr::summarize(net =  case_when(sum(net) < -2 ~ "Very Negative",
                                    between(sum(net), 0, -2) ~ "Slightly Negative",
                                    sum(net) == 0 ~ "Neutral",
                                    between(sum(net), 0, 2) ~ "Slightly Positive",
@@ -277,11 +279,23 @@ teamq_plot_diagnostics <- function(x){
     theme(legend.position = "bottom",
           panel.grid = element_blank())
   
+  
+  if (!all(is.na(total$value))) {
+    t_limits <- c(0, round_any(max(total$value, na.rm = TRUE), 10, ceiling)) 
+    
+    t_breaks <- seq(0, round_any(max(total$value, na.rm = TRUE), 10, ceiling),by = 5) 
+  } else {
+    
+    t_limits <- c(0, 60)
+    
+    t_breaks <- seq(0, 60, by = 5)
+  }
+  
   total <- ggplot(total, aes(x = to, y = from, fill = value)) +
     geom_tile(color = "grey20") +
     geom_text(aes(label = value)) +
     scale_x_discrete(labels = function(x) str_wrap(x, 5)) +
-    scale_fill_viridis(limits = c(0, round_any(max(total$value, na.rm = TRUE), 10, ceiling)), na.value = "white", breaks = seq(0, round_any(max(total$value, na.rm = TRUE), 10, ceiling),by = 5)) +
+    scale_fill_viridis(limits = t_limits , na.value = "white", breaks = t_breaks ) +
     theme_minimal() +
     labs(x = "To",
          y = "From",
@@ -309,8 +323,10 @@ teamq_plot_diagnostics <- function(x){
   
   if (exists("comments")) {
     grid.arrange(mark_plot, total, comments,  nrow = 3, top = sprintf("Team %s", team_no)) 
+    TRUE
   } else {
     grid.arrange(mark_plot, total, nrow = 2, top = sprintf("Team %s", team_no)) 
+    TRUE
   }
   
   } else {
@@ -319,6 +335,7 @@ teamq_plot_diagnostics <- function(x){
                    x = 0.5,
                    y = 0.5,
                    gp = gpar(col = "Red"))
+    
     
     grid.draw(output)
      
