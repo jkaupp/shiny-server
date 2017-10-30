@@ -8,7 +8,7 @@ apsc_mark_tables <- function(x, var) {
     mutate(reviewee_name = factor(reviewee_name,levels = unique(reviewee_name))) %>% 
     mutate(reviewer_name = factor(reviewer_name,levels = unique(reviewer_name))) %>% 
     spread_("reviewee_name", var) %>% 
-    mutate_at(reviewer_name, funs(as.character))
+    mutate_at("reviewer_name", funs(as.character))
   
   names <- names(main)[-1]
   

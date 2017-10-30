@@ -115,6 +115,8 @@ if (params$type == "mark") {
 ```{r output, results = 'asis'}
 panderOptions('knitr.auto.asis', FALSE)
 
-invisible(map(tables, ~pander(.x, keep.line.breaks = TRUE, justify = "left", split.cell = 50, split.table = Inf, digits = 0, style = 'simple')))
+pander(tables)
+
+#invisible(map(tables, ~pander(.x, keep.line.breaks = TRUE, justify = "left", split.cell = 50, split.table = Inf, digits = 0, missing = '?', style = 'grid')))
 ```
 
