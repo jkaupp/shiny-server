@@ -13,11 +13,13 @@ library(tidytext)
 library(DT)
 library(grid)
 library(gridExtra)
+library(gtable)
 library(forcats)
 library(ggplot2)
 library(RColorBrewer)
 library(plyr)
 library(dplyr)
+library(shinycssloaders)
 
 source("pen.R")
 
@@ -46,7 +48,7 @@ shinyServer(function(input, output) {
     })
   
    observe({
-    toggleState("downloadMarkReport", condition = input$grasp_in)
+    toggleState("downloadMarkReport", condition =  input$grasp_in)
     toggleState("downloadCommentReport", condition = input$grasp_in)
   })
   
@@ -66,31 +68,35 @@ shinyServer(function(input, output) {
                                             select_(.dots = list(quote(team_number)), sprintf("table%s", input$q_num )) %>% 
                                             filter(team_number == input$mark_team) %>% 
                                             unnest() %>% 
+                                            ungroup() %>% 
                                             select(-team_number) %>% 
                                             DT::datatable(options = list(dom = 'pt'), rownames = FALSE) %>% 
                                             formatStyle('Ratings For',
-                                                        target = 'row',
-                                                        fontWeight = styleEqual("Average",'bold')))
-    
+                                                        target = 'row', 
+                                                        fontWeight = styleEqual(c("Average","Adjusted Average", "Base Adjustment"),rep('bold',3)))) 
     
     output$DT_comment <- DT::renderDataTable(comment_table() %>% 
                                                select(team_number, comments) %>% 
                                                filter(team_number == input$comment_team) %>% 
                                                unnest() %>% 
+                                               ungroup() %>% 
                                                filter_(~Question == sprintf("q%s", input$comment_q_num)) %>% 
                                                select(-team_number) %>% 
                                                DT::datatable(options = list(dom = 'pt'),  rownames = FALSE)
-    )
+    ) 
+    
     
   } else {
     
     mark_table <- reactive({make_tables(grasp_data(), survey = input$survey_type)})
     
+    
     output$DT_mark <- DT::renderDataTable(mark_table() %>% 
                                             filter(team_number == input$mark_team, scales == input$scale) %>% 
                                             select(-team_number, -question, -scales) %>% 
                                             spread(items, value) %>% 
-                                            DT::datatable(options = list(dom = 'pt'), rownames = FALSE)) 
+                                            DT::datatable(options = list(dom = 'pt'), rownames = FALSE))
+    
   }})
   
   
@@ -131,7 +137,7 @@ shinyServer(function(input, output) {
   
   output$buttons <- renderUI({
     
-    if (input$survey_type == "apsc" & !is.null(input$grasp_in)) {
+    if (input$survey_type == "apsc" & !is.null(input$grasp_in) & isolate(tables_built_flag())) {
       list(downloadButton("downloadMarkReport", "Download Results Report", class = "pen_button"), 
            tags$br(),
            tags$br(),
@@ -150,20 +156,36 @@ shinyServer(function(input, output) {
   output$downloadMarkReport <- downloadHandler(
     filename = reactive(sprintf("GRASP Mark report - %s.pdf", tools::file_path_sans_ext(input$grasp_in[['name']]))),
     content = function(file) {
+     
+      pdf(file, width = 8.5, height = 11, onefile = TRUE)
       
-      tempReport <- file.path(tempdir(), "grasp_report_template.Rmd")
+      grasp_data() %>% 
+        make_tables(type = "mark", survey = "apsc") %>% 
+        transmute(grob1 = map(table1, ~build_apsc_table_grob(.x, "Intellectual and Technical Contribution")),
+                  grob2 = map(table2, ~build_apsc_table_grob(.x, "Collaboration Communication and Work Ethic"))) %>% 
+        pwalk(make_apsc_mark_report)
+       
+      dev.off()
       
-      file.copy("grasp_report_template.Rmd", tempReport, overwrite = TRUE)
-      
-      parameters <- list(type = "mark")
-      
-      # Use rmarkdown::render to produce a pdf report
-      rmarkdown::render(tempReport, 
-                        output_file = file,
-                        params = parameters,
-                        clean = TRUE)
-      
-    }
+    },
+    contentType = "application/pdf"
+    
+    
+    # content = function(file) {
+    #   
+    #   tempReport <- file.path(tempdir(), "grasp_report_template.Rmd")
+    #   
+    #   file.copy("grasp_report_template.Rmd", tempReport, overwrite = TRUE)
+    #   
+    #   parameters <- list(type = "mark")
+    #   
+    #   # Use rmarkdown::render to produce a pdf report
+    #   rmarkdown::render(tempReport, 
+    #                     output_file = file,
+    #                     params = parameters,
+    #                     clean = TRUE)
+    #   
+    # }
   )
   
   
@@ -171,19 +193,33 @@ shinyServer(function(input, output) {
     filename = reactive(sprintf("GRASP Comment report - %s.pdf", tools::file_path_sans_ext(input$grasp_in[['name']]))),
     content = function(file) {
       
-      tempReport <- file.path(tempdir(), "grasp_report_template.Rmd")
+      pdf(file, width = 8.5, height = 11, onefile = TRUE)
       
-      file.copy("grasp_report_template.Rmd", tempReport, overwrite = TRUE)
+      grasp_data() %>% 
+        make_tables(type = "comment", survey = "apsc") %>% 
+        transmute(grob1 = map(comments, ~build_apsc_table_grob(.x, NULL))) %>% 
+        pwalk(make_apsc_comment_report)
       
-      parameters <- list(type = "comment")
+      dev.off()
       
-      # Use rmarkdown::render to produce a pdf report
-      rmarkdown::render(tempReport, 
-                        output_file = file,
-                        params = parameters,
-                        clean = TRUE)
-      
-    }
+    },
+    contentType = "application/pdf"
+    
+    # content = function(file) {
+    #   
+    #   tempReport <- file.path(tempdir(), "grasp_report_template.Rmd")
+    #   
+    #   file.copy("grasp_report_template.Rmd", tempReport, overwrite = TRUE)
+    #   
+    #   parameters <- list(type = "comment")
+    #   
+    #   # Use rmarkdown::render to produce a pdf report
+    #   rmarkdown::render(tempReport, 
+    #                     output_file = file,
+    #                     params = parameters,
+    #                     clean = TRUE)
+    #   
+    # }
   )
   
   output$downloadTeamQReport <- downloadHandler(

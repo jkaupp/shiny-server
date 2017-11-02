@@ -24,11 +24,11 @@ shinyUI(
   
   
   tabPanel("Results", value = "results",
-           sidebarLayout(
+          sidebarLayout(
              sidebarPanel(width = 3,
                           uiOutput("markquestions"),
                           uiOutput("markteams")),
-             mainPanel(width = 9,
+              mainPanel(width = 9,
                        DT::dataTableOutput("DT_mark"))
            )
   ),
@@ -42,4 +42,5 @@ shinyUI(
                        DT::dataTableOutput("DT_comment"))
            )
   )
+  
 ))

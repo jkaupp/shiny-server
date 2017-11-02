@@ -1,3 +1,47 @@
+# APSC Peer Review Survey Functions----
+
+# Master make tables function
+make_tables <- function(x, survey, type) {
+  
+  switch(survey,
+         "apsc" = make_apsc_tables(x, type = type),
+         "teamq_student" = make_teamq_tables(x),
+         "teamq_diagnostic" = make_teamq_diag_tables(x))
+}
+
+# Make APSC Peer Assessment survey tables & grobs
+make_apsc_tables <- function(x, type) {
+  
+  var <- switch(type,
+                "mark" = list("q1_mark","q2_mark"),
+                "comment" = "comment")
+  
+  if (type == "mark") {
+    
+    # "Intellectual and Technical Contribution"
+    tables <- x %>%
+      mutate(team_number = team) %>% 
+      nest(-team_number) %>% 
+      group_by(team_number) %>% 
+      transmute(table1 = map(data, ~apsc_mark_tables(.x, var = var[[1]])),
+             table2 = map(data, ~apsc_mark_tables(.x, var = var[[2]])))
+  
+
+    
+  } else {
+    
+    #Peer Comment Tables
+    tables <- x %>% 
+      mutate(team_number = team) %>% 
+      nest(-team_number) %>% 
+      group_by(team_number) %>% 
+      transmute(comments = map(data, ~apsc_comment_tables(.x, var = var)))
+  }
+  return(tables)
+}
+
+
+# Make apsc peer assessment mark data tables
 apsc_mark_tables <- function(x, var) {
   
   main <- select_(x, ~reviewer_last_name, ~reviewer_first_name, ~reviewee_last_name, ~reviewee_first_name, var) %>% 
@@ -6,23 +50,53 @@ apsc_mark_tables <- function(x, var) {
     arrange(reviewer_last_name, reviewee_last_name) %>%
     select_(~reviewee_name, ~reviewer_name, var) %>%
     mutate(reviewee_name = factor(reviewee_name,levels = unique(reviewee_name))) %>% 
-    mutate(reviewer_name = factor(reviewer_name,levels = unique(reviewer_name))) %>% 
+    mutate(reviewer_name = factor(reviewer_name,levels = unique(reviewer_name))) 
+  
+  summary <- main %>% 
     spread_("reviewee_name", var) %>% 
-    mutate_at("reviewer_name", funs(as.character))
-  
-  names <- names(main)[-1]
-  
-  main <- clean_names(main)
-  
-  summary <- summarize_at(main, -1, funs(mean), na.rm = TRUE) %>% 
+    mutate_at("reviewer_name", funs(as.character)) %>% 
+    clean_names() %>% 
+    summarize_at(-1, funs(mean), na.rm = TRUE) %>% 
     mutate(reviewer_name = "Average") %>% 
     mutate_if(is.numeric, funs(trunc))
   
-  bind_rows(main, summary) %>% 
+  adj_avg <- main %>% 
+    mutate_at("reviewer_name", funs(as.character)) %>% 
+    filter(reviewer_name != reviewee_name) %>% 
+    group_by(reviewee_name) %>% 
+    summarize_at(var,  funs(mean), na.rm = TRUE) %>% 
+    spread_("reviewee_name", var) %>% 
+    mutate(reviewer_name = "Adjusted Average") %>% 
+    clean_names() %>% 
+    mutate_if(is.numeric, funs(trunc)) 
+  
+  base_adjust <- main %>% 
+    mutate_at("reviewer_name", funs(as.character)) %>% 
+    filter(reviewer_name != reviewee_name) %>% 
+    group_by(reviewee_name) %>% 
+    summarize_at(var,  funs(mean), na.rm = TRUE) %>% 
+    mutate_at(var, function(x) x - (100/length(x))) %>% 
+    spread_("reviewee_name", var) %>% 
+    mutate(reviewer_name = "Base Adjustment") %>% 
+    clean_names() %>% 
+    mutate_if(is.numeric, funs(trunc)) 
+  
+  names <- as.character(unique(main$reviewee_name))
+  
+  main <- main %>% 
+    mutate_at(var, function(x) replace(x, is.na(x), "???")) %>% 
+    spread_("reviewee_name", var) %>% 
+    mutate_at("reviewer_name", funs(as.character)) %>% 
+    clean_names() %>% 
+    mutate_at(-1, funs(as.numeric))
+  
+  main %>%
+    bind_rows(summary, adj_avg, base_adjust) %>% 
     set_names(c("Ratings For", names)) 
   
 }
 
+# Make apsc peer assessment mark data tables
 apsc_comment_tables <- function(x, var) {
   
   select_(x,~reviewer_last_name, ~reviewer_first_name, ~reviewee_last_name, ~reviewee_first_name, ~contains(var)) %>% 
@@ -36,6 +110,7 @@ apsc_comment_tables <- function(x, var) {
     mutate(comment = stri_replace_all_regex(comment, "[\r]" , "")) %>% 
     mutate(comment = stri_replace_all_regex(comment, "[^[:alnum:]]", " ")) %>% 
     select(reviewee_name, reviewer_name, question, comment) %>% 
+    replace_na(list(comment = "")) %>% 
     rename(To = reviewee_name,
            From = reviewer_name,
            Question = question,
@@ -43,6 +118,88 @@ apsc_comment_tables <- function(x, var) {
   
 }
 
+# Function to generate APSC Mark report for APSC Peer Asssessment
+make_apsc_mark_report <- function(team_number, grob1, grob2) {
+  
+  title <- sprintf("Peer Evalution Team: %s", team_number)
+  
+  grid.arrange(grob1, grob2, top = title) 
+  
+  
+}
+
+# Function to generate APSC comment report for APSC Peer Asssessment
+make_apsc_comment_report <- function(team_number, grob1) {
+  
+  title <- sprintf("Peer Comments Team: %s", team_number)
+  
+  grid.arrange(grob1, top = title) 
+  
+}
+
+
+# Build Table Grobs for APSC Peer Assessment Survey report
+build_apsc_table_grob <- function(tbl, tbl_title) {
+  
+  rows <- nrow(tbl)
+  cols <- ncol(tbl)
+  
+  if (rows < 10) {
+    theme <- ttheme_default(core = list(fg_params = list(fontface = c(rep("plain", rows - 3), rep("bold", 3))))) 
+  } else {
+    
+    theme <- ttheme_default(base_size = 8) 
+    
+    tbl <- mutate_at(tbl, "Comment", funs(str_wrap), width = 100) 
+  }
+  
+  table <- tableGrob(tbl, rows = NULL, theme = theme)
+  
+  if (rows < 10) {
+    
+    for (i in seq(rows - 1, rows + 1)) {
+      
+      table <- gtable_add_grob(table,
+                               grobs = segmentsGrob( # line across the bottom
+                                 x0 = unit(0,"npc"),
+                                 y0 = unit(1,"npc"),
+                                 x1 = unit(1,"npc"),
+                                 y1 = unit(1,"npc"),
+                                 gp = gpar(lwd = 3.0)),
+                               t = i, b = i, l = 1, r = cols) } 
+  } else {
+    
+    for (i in seq(2, rows, by = 2)) {
+      
+      table <- gtable_add_grob(table,
+                               grobs = segmentsGrob( # line across the bottom
+                                 x0 = unit(0,"npc"),
+                                 y0 = unit(1,"npc"),
+                                 x1 = unit(1,"npc"),
+                                 y1 = unit(1,"npc"),
+                                 gp = gpar(lwd = 3.0)),
+                               t = i, b = i, l = 1, r = cols) }
+  }
+  
+  
+  if(!is.null(title)) {
+    
+    title <- textGrob(tbl_title , gp = gpar(fontsize = 14))
+    
+    padding <- unit(5,"mm")
+    
+    table <- gtable_add_rows(table, heights = grobHeight(title) + padding, pos = 0)
+    
+    table <- gtable_add_grob(table, title, 1, 1, 1, ncol(table), clip = "off") 
+  }
+  
+  return(table)
+  
+}
+
+# TeamQ Student ----
+
+# Make teamQ raw data tables
 make_teamq_tables <- function(x) {
   
   teamq <- tibble(question = 1:15, 
@@ -79,43 +236,10 @@ make_teamq_tables <- function(x) {
 }
 
 
-make_apsc_tables <- function(x, type) {
-  
-  var <- switch(type,
-                "mark" = list("q1_mark","q2_mark"),
-                "comment" = "comment")
-  
-  if (type == "mark") {
-    
-    # "Intellectual and Technical Contribution"
-    tables <- x %>%
-      mutate(team_number = team) %>% 
-      group_by(team_number) %>% 
-      nest() %>% 
-      mutate(table1 = map(data, ~apsc_mark_tables(.x, var = var[[1]])),
-             table2 = map(data, ~apsc_mark_tables(.x, var = var[[2]])))
-    
-  } else {
-    
-    #Peer Comment Tables
-    tables <- x %>% 
-      mutate(team_number = team) %>% 
-      group_by(team_number) %>% 
-      nest() %>% 
-      mutate(comments = map(data, ~apsc_comment_tables(.x, var = var)))
-  
-  }
-  return(tables)
-}
 
-make_tables <- function(x, survey, type) {
-  
-  switch(survey,
-         "apsc" = make_apsc_tables(x, type = type),
-         "teamq_student" = make_teamq_tables(x),
-         "teamq_diagnostic" = make_teamq_diag_tables(x))
-}
+# TeamQ Diagnostic
 
+# Make teamQ Diagnostic Report tables
 make_teamq_diag_tables <- function(x) {
   
   teamq <- tibble(question = 1:14, 
@@ -155,19 +279,7 @@ make_teamq_diag_tables <- function(x) {
   
 }
 
-
-
-flag_teams <- function(x) {
-  x %>%
-    select(team, reviewee_id, q13_mark) %>%
-    group_by(reviewee_id) %>%
-    summarize(flag = mean(q13_mark, na.rm = TRUE)) %>%
-    mutate(flag = ifelse(flag < 21, TRUE, FALSE)) %>%
-    select(flag) %>%
-    map_lgl( ~ any(.x))
-}
-
-
+# Make teamQ diagnostics plots
 teamq_plot_diagnostics <- function(x){
   
   teamq <- tibble(question = 1:14, 
@@ -323,10 +435,10 @@ teamq_plot_diagnostics <- function(x){
   
   if (exists("comments")) {
     grid.arrange(mark_plot, total, comments,  nrow = 3, top = sprintf("Team %s", team_no)) 
-    TRUE
+
   } else {
     grid.arrange(mark_plot, total, nrow = 2, top = sprintf("Team %s", team_no)) 
-    TRUE
+  
   }
   
   } else {
@@ -342,3 +454,14 @@ teamq_plot_diagnostics <- function(x){
   }
 }
 
+
+# Helper function to flag trouble teams in TeamQ
+flag_teams <- function(x) {
+  x %>%
+    select(team, reviewee_id, q13_mark) %>%
+    group_by(reviewee_id) %>%
+    summarize(flag = mean(q13_mark, na.rm = TRUE)) %>%
+    mutate(flag = ifelse(flag < 21, TRUE, FALSE)) %>%
+    select(flag) %>%
+    map_lgl( ~ any(.x))
+}
