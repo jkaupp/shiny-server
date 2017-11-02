@@ -19,7 +19,6 @@ library(ggplot2)
 library(RColorBrewer)
 library(plyr)
 library(dplyr)
-library(shinycssloaders)
 
 source("pen.R")
 
@@ -137,7 +136,7 @@ shinyServer(function(input, output) {
   
   output$buttons <- renderUI({
     
-    if (input$survey_type == "apsc" & !is.null(input$grasp_in) & isolate(tables_built_flag())) {
+    if (input$survey_type == "apsc" & !is.null(input$grasp_in)) {
       list(downloadButton("downloadMarkReport", "Download Results Report", class = "pen_button"), 
            tags$br(),
            tags$br(),
