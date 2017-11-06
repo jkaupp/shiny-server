@@ -263,16 +263,10 @@ shinyServer(function(input, output) {
     content = function(file) {
       toggleState("downloadTeamQReport")
       
-      pdf(file, width = 8.5, height = 11, onefile = TRUE)
+      CairoPDF(file, width = 8.5, height = 11, onefile = TRUE)
       
       grasp_data() %>% 
         split(.$team) %>% 
-        # mutate(team_no = team) %>% 
-        # nest(-team_no) %>% 
-        # mutate(flag = map_lgl(data, flag_teams)) %>% 
-        # arrange(desc(flag)) %>% 
-        # select(data) %>% 
-        # flatten() %>% 
         walk(teamq_plot_diagnostics)
    
       dev.off()

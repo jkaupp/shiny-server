@@ -378,7 +378,6 @@ teamq_plot_diagnostics <- function(x){
   }
   
   
-  
   if (!all(is.na(total$value))) {
     t_limits <- c(0, round_any(max(total$value, na.rm = TRUE), 10, ceiling)) 
     
@@ -415,7 +414,6 @@ teamq_plot_diagnostics <- function(x){
     split(.$scales) %>% 
     map(build_mark_plot) 
   
-  
   #Modify marks and total into a 6x6
     
   mark_plots$total <- total_plot
@@ -440,7 +438,7 @@ teamq_plot_diagnostics <- function(x){
     
     comments <- ggplot(comment_sent, aes(x = to, y = from)) +
       geom_tile(aes(fill = net), color = "grey20") +
-      geom_text(aes(label = str_wrap(value, 75)), size = 1.2) +
+      geom_text(aes(label = str_wrap(value, 75)), size = 1) +
       facet_wrap(~question, labeller = as_labeller(lookup), nrow = 2) +
       scale_x_discrete(labels = function(x) str_wrap(x, 5)) +
       scale_y_discrete(labels = function(x) str_wrap(x, 10)) +
@@ -461,9 +459,9 @@ teamq_plot_diagnostics <- function(x){
   } 
   
   if (exists("comments")) {
-    #Cairo::CairoPDF("test.pdf", width = 8.5, height = 11, onefile = TRUE)
+      
     grid.arrange(plot, comments, top = sprintf("Team %s", team_no), heights = c(0.4, 0.6)) 
-    #dev.off()
+
 
   } else {
     grid.arrange(plot, top = sprintf("Team %s", team_no)) 
@@ -478,7 +476,7 @@ teamq_plot_diagnostics <- function(x){
                    gp = gpar(col = "Red"))
     
     
-    grid.draw(output)
+    grid.arrange(output)
      
   }
 }
