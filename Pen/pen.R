@@ -378,66 +378,95 @@ teamq_plot_diagnostics <- function(x){
   }
   
   
-  mark_plot <-  ggplot(marks, aes(x = to, y = from, fill = value)) +
-    geom_tile(color = "grey20") +
-    scale_fill_viridis(limits = c("Never", "Sometimes", "Usually", "Often", "Always"), na.value = "white", discrete = TRUE) +
-    facet_wrap(~scales) +
-    scale_x_discrete(labels = function(x) str_wrap(x, 5)) +
-    labs(x = "To",
-         y = "From",
-         title = "Team Q Subscales Heatmap",
-         subtitle = NULL) +
-    theme_minimal() +
-    theme(legend.position = "bottom",
-          panel.grid = element_blank())
-  
   
   if (!all(is.na(total$value))) {
     t_limits <- c(0, round_any(max(total$value, na.rm = TRUE), 10, ceiling)) 
     
-    t_breaks <- seq(0, round_any(max(total$value, na.rm = TRUE), 10, ceiling),by = 5) 
+    t_breaks <- seq(0, round_any(max(total$value, na.rm = TRUE), 10, ceiling), by = 10) 
   } else {
     
     t_limits <- c(0, 60)
     
-    t_breaks <- seq(0, 60, by = 5)
+    t_breaks <- seq(0, 60, by = 10)
   }
   
-  total <- ggplot(total, aes(x = to, y = from, fill = value)) +
+  total_plot <- ggplot(total, aes(x = to, y = from, fill = value)) +
     geom_tile(color = "grey20") +
-    geom_text(aes(label = value)) +
+    geom_text(aes(label = value), na.rm = TRUE) +
+    scale_fill_viridis("", limits = t_limits , na.value = "white", breaks = t_breaks ) +
+    coord_equal() +
     scale_x_discrete(labels = function(x) str_wrap(x, 5)) +
-    scale_fill_viridis(limits = t_limits , na.value = "white", breaks = t_breaks ) +
-    theme_minimal() +
-    labs(x = "To",
-         y = "From",
-         title = "Points Distribution",
-         subtitle = "Students assign points to each team member from a pool of 120") +
+    scale_y_discrete(labels = function(x) str_wrap(x, 10)) +
+    labs(x = NULL,
+         y = NULL,
+         title = "Point Distribution") +
     theme_minimal() +
     theme(legend.position = "bottom",
-          panel.grid = element_blank())
+          panel.grid = element_blank(),
+          legend.text = element_text(size = 6),
+          legend.title = element_text(size = 6),
+          axis.text = element_text(size = 6),
+          plot.title = element_text(size = 10),
+          legend.key.width = unit(0.5, "cm"),
+          legend.key.height = unit(0.25, "cm")) 
+
+  
+  mark_plots <- marks %>% 
+    split(.$scales) %>% 
+    map(build_mark_plot) 
+  
+  
+  #Modify marks and total into a 6x6
+    
+  mark_plots$total <- total_plot
+  
+  mark_grobs <- map(mark_plots, ggplotGrob)
+  
+  marks_legend <- mark_grobs[[1]]$grobs[which(sapply(mark_grobs[[1]]$grobs, function(x) x$name) == "guide-box")]
+  
+  total_legend <-  mark_grobs[[length(mark_grobs)]]$grobs[which(sapply(mark_grobs[[length(mark_grobs)]]$grobs, function(x) x$name) == "guide-box")]
+  
+  mark_plots <- map(mark_plots, ~.x + theme(legend.position = "none"))
+  
+  mark_plots[1:3] <- map(mark_plots[1:3], ~.x + theme(axis.text.x = element_blank()))
+  
+  legend <- cbind(marks_legend, marks_legend, total_legend)
+  
+  plot <- arrangeGrob(grobs = c(mark_plots, legend), heights = c(10,11.5,1))
+
+  plot$grobs[[7]] <- zeroGrob();
   
   if (nrow(filter(survey_data, question %in% 13:14,  type == "comment", !is.na(value))) > 0) {
     
     comments <- ggplot(comment_sent, aes(x = to, y = from)) +
       geom_tile(aes(fill = net), color = "grey20") +
-      facet_wrap(~question, labeller = as_labeller(lookup)) +
+      geom_text(aes(label = str_wrap(value, 75)), size = 1.2, family = "Arial") +
+      facet_wrap(~question, labeller = as_labeller(lookup), nrow = 2) +
       scale_x_discrete(labels = function(x) str_wrap(x, 5)) +
-      labs(x = "To",
-           y = "From",
+      scale_y_discrete(labels = function(x) str_wrap(x, 10)) +
+      coord_fixed(ratio = 0.25) +
+      labs(x = NULL,
+           y = NULL,
            title = "Sentiment analysis of comments",
-           subtitle = "Net sentiment assigned by frequency of positive/negative words") +
+           subtitle = NULL) +
       scale_fill_manual("Net Sentiment", values = setNames(brewer.pal(5, "RdBu"), c("Very Negative","Slightly Negative", "Neutral", "Slightly Positive", "Very Positive")), limits = c("Very Negative","Slightly Negative", "Neutral", "Slightly Positive", "Very Positive"), na.value = "white") +
       theme_minimal() +
       theme(legend.position = "bottom",
-            panel.grid = element_blank())
+            legend.text = element_text(size = 6),
+            legend.title = element_text(size = 6),
+            axis.text = element_text(size = 6),
+            panel.grid = element_blank(),
+            plot.margin = unit(c(1,0.1,0,0.1), "cm"),
+            legend.key.size = unit(0.5, "cm"))
   } 
   
   if (exists("comments")) {
-    grid.arrange(mark_plot, total, comments,  nrow = 3, top = sprintf("Team %s", team_no)) 
+    #Cairo::CairoPDF("test.pdf", width = 8.5, height = 11, onefile = TRUE)
+    grid.arrange(plot, comments, top = sprintf("Team %s", team_no), heights = c(0.4, 0.6)) 
+    #dev.off()
 
   } else {
-    grid.arrange(mark_plot, total, nrow = 2, top = sprintf("Team %s", team_no)) 
+    grid.arrange(plot, top = sprintf("Team %s", team_no)) 
   
   }
   
@@ -464,4 +493,29 @@ flag_teams <- function(x) {
     mutate(flag = ifelse(flag < 21, TRUE, FALSE)) %>%
     select(flag) %>%
     map_lgl( ~ any(.x))
+}
+
+
+build_mark_plot <- function(x) {
+  
+ g <- ggplot(x, aes(x = to, y = from, fill = value)) +
+    geom_tile(color = "grey20") +
+    scale_fill_viridis("", limits = c("Never", "Sometimes", "Usually", "Often", "Always"), na.value = "white", discrete = TRUE) +
+    coord_equal() +
+    scale_x_discrete(labels = function(x) str_wrap(x, 5)) +
+    scale_y_discrete(labels = function(x) str_wrap(x, 10)) +
+    labs(x = NULL,
+         y = NULL,
+         title = unique(x$scales)) +
+    theme_minimal() +
+    theme(legend.position = "bottom",
+          panel.grid = element_blank(),
+          legend.text = element_text(size = 6),
+          legend.title = element_text(size = 6),
+          axis.text = element_text(size = 6),
+          plot.title = element_text(size = 10),
+          legend.key.size = unit(0.5, "cm"))
+ 
+
+ return(g)
 }
