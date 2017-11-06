@@ -440,7 +440,7 @@ teamq_plot_diagnostics <- function(x){
     
     comments <- ggplot(comment_sent, aes(x = to, y = from)) +
       geom_tile(aes(fill = net), color = "grey20") +
-      geom_text(aes(label = str_wrap(value, 75)), size = 1.2, family = "Arial") +
+      geom_text(aes(label = str_wrap(value, 75)), size = 1.2) +
       facet_wrap(~question, labeller = as_labeller(lookup), nrow = 2) +
       scale_x_discrete(labels = function(x) str_wrap(x, 5)) +
       scale_y_discrete(labels = function(x) str_wrap(x, 10)) +
