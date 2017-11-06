@@ -19,6 +19,7 @@ library(ggplot2)
 library(RColorBrewer)
 library(plyr)
 library(dplyr)
+library(Cairo)
 
 source("pen.R")
 
