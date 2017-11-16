@@ -17,9 +17,11 @@ library(gtable)
 library(forcats)
 library(ggplot2)
 library(RColorBrewer)
+library(Cairo)
+library(ggradar)
+library(showtext)
 library(plyr)
 library(dplyr)
-library(Cairo)
 
 source("pen.R")
 
@@ -241,17 +243,22 @@ shinyServer(function(input, output) {
     
     tempReport <- "teamq_report_template.Rmd"
     
-    renderBar <- function(x, y){
+    renderBar <- function(x, y, max){
       
-      withProgress(message = sprintf("Building Student Report %s of %s", x, length(ratings)), min = 1, max = length(ratings), value = x, {
       rmarkdown::render(tempReport,
                         output_file = sprintf("%s.pdf", y),
                         params = list(data = sprintf("ratings[[%s]]", x)),
-                        clean = TRUE)
+                        clean = TRUE,
+                        quiet = TRUE)
       
-    })}
+      incProgress(1/max, detail = sprintf("Finshed report %s of %s", x, max))
+      
+    }
     
-    walk2(seq_along(ratings), names(ratings), ~renderBar(.x, .y))
+    withProgress(message = "Building  Student Reports", value = 0, {
+    
+    pwalk(tibble(x = seq_along(ratings), y = names(ratings), max = length(ratings)), renderBar) })
+    
 
     on.exit(toggleState("downloadTeamQReport"))
     
