@@ -41,9 +41,14 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 data <- eval(parse(text = params$data)) %>%
     select_(~team, ~reviewer_last_name, ~reviewer_first_name, ~reviewee_last_name, ~reviewee_first_name, ~contains("q")) %>% 
     unite(reviewer_name, reviewer_first_name, reviewer_last_name, sep = " ") %>% 
-    unite(reviewee_name, reviewee_first_name, reviewee_last_name, sep = " ") %>% 
-    mutate_at(matches("q15"), funs(stri_replace_all_regex(., "[\r]" , ""))) %>% 
-    mutate_at(matches("q15"), funs(stri_replace_all_regex(., "[^[:alnum:]]", " "))) %>%
+    unite(reviewee_name, reviewee_first_name, reviewee_last_name, sep = " ")
+
+if (any(grepl("q15", names(data)))) {
+  data <- mutate_at(data, matches("q15"), funs(stri_replace_all_regex(., "[\r]" , ""))) %>% 
+    mutate_at(matches("q15"), funs(stri_replace_all_regex(., "[^[:alnum:]]", " "))) 
+}
+  
+data <- data %>% 
     gather(question, value, contains("q")) %>% 
     filter(is.numeric(value)) %>% 
     mutate(question = parse_number(question)) %>% 
