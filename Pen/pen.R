@@ -133,7 +133,25 @@ make_apsc_comment_report <- function(team_number, grob1) {
   
   title <- sprintf("Peer Comments Team: %s", team_number)
   
-  grid.arrange(grob1, top = title) 
+  fullheight <- convertHeight(sum(grob1$heights), "cm", valueOnly = TRUE)
+  margin <- unit(0.51,"in")
+  margin_cm <- convertHeight(margin, "cm", valueOnly = TRUE)
+  letter_height <- 27.94 - margin_cm
+  nrows <- nrow(grob1)
+  npages <- ceiling(fullheight / letter_height)
+  
+  heights <- convertHeight(grob1$heights, "cm", valueOnly = TRUE) 
+  rows <- cut(cumsum(heights), include.lowest = FALSE,
+              breaks = c(0, cumsum(rep(letter_height, npages))))
+  
+  groups <- split(seq_len(nrows), rows)
+  
+  gl <- lapply(groups, function(id) grob1[id,])
+  
+  ## alternative to explicit loop:
+  out <- marrangeGrob(grobs = gl, ncol = 1, nrow = 1, top = title)
+
+  # grid.arrange(grob1, top = title) 
   
 }
 

@@ -172,22 +172,6 @@ shinyServer(function(input, output) {
     },
     contentType = "application/pdf"
     
-    
-    # content = function(file) {
-    #   
-    #   tempReport <- file.path(tempdir(), "grasp_report_template.Rmd")
-    #   
-    #   file.copy("grasp_report_template.Rmd", tempReport, overwrite = TRUE)
-    #   
-    #   parameters <- list(type = "mark")
-    #   
-    #   # Use rmarkdown::render to produce a pdf report
-    #   rmarkdown::render(tempReport, 
-    #                     output_file = file,
-    #                     params = parameters,
-    #                     clean = TRUE)
-    #   
-    # }
   )
   
   
@@ -195,12 +179,14 @@ shinyServer(function(input, output) {
     filename = reactive(sprintf("GRASP Comment report - %s.pdf", tools::file_path_sans_ext(input$grasp_in[['name']]))),
     content = function(file) {
       
-      pdf(file, width = 8.5, height = 11, onefile = TRUE)
-      
-      grasp_data() %>% 
+      grobs  <- grasp_data() %>% 
         make_tables(type = "comment", survey = "apsc") %>% 
         transmute(grob1 = map(comments, ~build_apsc_table_grob(.x, NULL))) %>% 
-        pwalk(make_apsc_comment_report)
+        pmap(make_apsc_comment_report)
+      
+      pdf(file, width = 8.5, height = 11, onefile = TRUE)
+      
+      walk(out, print)
       
       dev.off()
       
