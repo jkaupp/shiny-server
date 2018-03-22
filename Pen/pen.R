@@ -123,7 +123,7 @@ make_apsc_mark_report <- function(team_number, grob1, grob2) {
   
   title <- sprintf("Peer Evalution Team: %s", team_number)
   
-  grid.arrange(grob1, grob2, top = title) 
+  arrangeGrob(grob1, grob2, top = title) 
   
   
 }
@@ -149,10 +149,9 @@ make_apsc_comment_report <- function(team_number, grob1) {
   gl <- lapply(groups, function(id) grob1[id,])
   
   ## alternative to explicit loop:
-  out <- marrangeGrob(grobs = gl, ncol = 1, nrow = 1, top = title)
-
-  # grid.arrange(grob1, top = title) 
+ marrangeGrob(grobs = gl, ncol = 1, nrow = 1, top = title)
   
+
 }
 
 
@@ -168,7 +167,8 @@ build_apsc_table_grob <- function(tbl, tbl_title) {
     
     theme <- ttheme_default(base_size = 8) 
     
-    tbl <- mutate_at(tbl, "Comment", funs(str_wrap), width = 100) 
+    tbl <- ungroup(tbl) %>% 
+       mutate_at("Comment", funs(str_wrap), width = 100) 
   }
   
   table <- tableGrob(tbl, rows = NULL, theme = theme)
@@ -200,7 +200,7 @@ build_apsc_table_grob <- function(tbl, tbl_title) {
   }
   
   
-  if(!is.null(title)) {
+  if (!is.null(title)) {
     
     title <- textGrob(tbl_title , gp = gpar(fontsize = 14))
     

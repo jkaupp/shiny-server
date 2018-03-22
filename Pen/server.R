@@ -158,16 +158,33 @@ shinyServer(function(input, output) {
   output$downloadMarkReport <- downloadHandler(
     filename = reactive(sprintf("GRASP Mark report - %s.pdf", tools::file_path_sans_ext(input$grasp_in[['name']]))),
     content = function(file) {
-     
-      pdf(file, width = 8.5, height = 11, onefile = TRUE)
       
-      grasp_data() %>% 
+      withProgress(message = "Building Mark Reports", value = 0, {
+     
+      grobs <- grasp_data() %>% 
         make_tables(type = "mark", survey = "apsc") %>% 
         transmute(grob1 = map(table1, ~build_apsc_table_grob(.x, "Intellectual and Technical Contribution")),
                   grob2 = map(table2, ~build_apsc_table_grob(.x, "Collaboration Communication and Work Ethic"))) %>% 
-        pwalk(make_apsc_mark_report)
+        pmap(make_apsc_mark_report)
+      
+      
+      printReport <- function(obj, idx, max){
+       
+        
+        grid.draw(obj)
+        grid.newpage()
+        
+        incProgress(1/max, detail = sprintf("Printing report %s of %s", idx, max))
+        
+      }
+      
+      pdf(file, width = 8.5, height = 11, onefile = TRUE)
+      
+      pwalk(list(obj = grobs, idx = seq_along(grobs), max = length(grobs)), printReport)
        
       dev.off()
+     
+       })
       
     },
     contentType = "application/pdf"
@@ -179,6 +196,8 @@ shinyServer(function(input, output) {
     filename = reactive(sprintf("GRASP Comment report - %s.pdf", tools::file_path_sans_ext(input$grasp_in[['name']]))),
     content = function(file) {
       
+      withProgress(message = "Building Comment Reports", value = 0, {
+      
       grobs  <- grasp_data() %>% 
         make_tables(type = "comment", survey = "apsc") %>% 
         transmute(grob1 = map(comments, ~build_apsc_table_grob(.x, NULL))) %>% 
@@ -186,28 +205,24 @@ shinyServer(function(input, output) {
       
       pdf(file, width = 8.5, height = 11, onefile = TRUE)
       
-      walk(out, print)
+      printReport <- function(obj, idx, max){
+        
+        print(obj)
+        
+        incProgress(1/max, detail = sprintf("Printing report %s of %s", idx, max))
+        
+      }
+      
+        pwalk(list(obj = grobs, idx = seq_along(grobs), max = length(grobs)), printReport)
+      
+      
       
       dev.off()
+      })
       
     },
     contentType = "application/pdf"
     
-    # content = function(file) {
-    #   
-    #   tempReport <- file.path(tempdir(), "grasp_report_template.Rmd")
-    #   
-    #   file.copy("grasp_report_template.Rmd", tempReport, overwrite = TRUE)
-    #   
-    #   parameters <- list(type = "comment")
-    #   
-    #   # Use rmarkdown::render to produce a pdf report
-    #   rmarkdown::render(tempReport, 
-    #                     output_file = file,
-    #                     params = parameters,
-    #                     clean = TRUE)
-    #   
-    # }
   )
   
   output$downloadTeamQReport <- downloadHandler(
@@ -223,6 +238,8 @@ shinyServer(function(input, output) {
   
   observeEvent(input$processTeamQReport, {
     
+    withProgress(message = "Building Student Reports", value = 0, {
+    
     toggleState("downloadTeamQReport")
     
     ratings <- split(grasp_data(), grasp_data()[["reviewee_id"]])
@@ -237,13 +254,13 @@ shinyServer(function(input, output) {
                         clean = TRUE,
                         quiet = TRUE)
       
-      incProgress(1/max, detail = sprintf("Finshed report %s of %s", x, max))
+      incProgress(1/max, detail = sprintf("Printing report %s of %s", x, max))
       
     }
     
-    withProgress(message = "Building  Student Reports", value = 0, {
-    
-    pwalk(tibble(x = seq_along(ratings), y = names(ratings), max = length(ratings)), renderBar) })
+   
+    pwalk(tibble(x = seq_along(ratings), y = names(ratings), max = length(ratings)), renderBar) 
+    })
     
 
     on.exit(toggleState("downloadTeamQReport"))
@@ -255,17 +272,27 @@ shinyServer(function(input, output) {
       sprintf("TeamQDiagnostic %s.pdf", Sys.Date())
     },
     content = function(file) {
-      toggleState("downloadTeamQReport")
       
+      grobs <-  grasp_data() %>% 
+        split(.$team) 
+      
+      withProgress(message = "Building Diagnostic Reports", value = 0, {
+        
+        printReport <- function(obj, idx, max){
+          
+          teamq_plot_diagnostics(obj)
+          
+          incProgress(1/max, detail = sprintf("Printing report %s of %s", idx, max)) 
+          }
+      
+        
       CairoPDF(file, width = 8.5, height = 11, onefile = TRUE)
       
-      grasp_data() %>% 
-        split(.$team) %>% 
-        walk(teamq_plot_diagnostics)
+        pwalk(list(obj = grobs, idx = seq_along(grobs), max = length(grobs)), printReport)
    
-      dev.off()
+      dev.off() 
       
-      toggleState("downloadTeamQReport")
+      })
       
     },
     contentType = "application/pdf"
