@@ -535,3 +535,15 @@ build_mark_plot <- function(x) {
 
  return(g)
 }
+
+
+# withInc <- function(.f, idx, max){
+#   
+#   .f <- as_function(.f)
+#   
+#   function(...) {.f 
+#     incProgress()}
+#   
+#   incProgress(1/max, detail = sprintf("Printing report %s of %s", idx, max))
+#   
+# }

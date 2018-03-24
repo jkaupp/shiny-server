@@ -25,39 +25,36 @@ library(dplyr)
 
 source("pen.R")
 
-# Define server logic required to draw a histogram
 shinyServer(function(input, output) {
   
-  #Set hidden/visible elements 
+  #Set hidden/visible elements  ----
   observe({toggleState("grasp_in", condition = input$survey_type != "")})
   
   observe({
     if (is.null(input$grasp_in)) {
       hide(selector = "#pen_navbar li a[data-value=results]")
       hide(selector = "#pen_navbar li a[data-value=comments]")
-      hide("downloadMarkReport")
-      hide("downloadCommentReport")
-      hide("downloadTeamQReport")
-    } else if (!is.null(input$grasp_in) && input$survey_type != "apsc") {
+    } else if (!is.null(input$grasp_in) & input$survey_type != "apsc") {
       show(selector = "#pen_navbar li a[data-value=results]")
       show("downloadTeamQReport")
     } else {
       show(selector = "#pen_navbar li a[data-value=results]")
       show(selector = "#pen_navbar li a[data-value=comments]")
-      show("downloadMarkReport")
-      show("downloadCommentReport")
     }
     })
   
-   observe({
-    toggleState("downloadMarkReport", condition =  input$grasp_in)
-    toggleState("downloadCommentReport", condition = input$grasp_in)
-  })
+  #  observe({
+  #   toggleState("processMarkReport", condition =  input$grasp_in)
+  #   toggleState("processCommentReport", condition = input$grasp_in)
+  # })
   
+  
+  ## Data Ingest ----
   grasp_data <- reactive({read_csv(input$grasp_in[['datapath']], trim_ws = TRUE) %>% 
                            clean_names() %>%
                            remove_empty_rows()}) 
   
+  file_name <- reactive({tools::file_path_sans_ext(input$grasp_in[['name']])})
   
   
   observe({if (input$survey_type == "apsc") {
@@ -108,6 +105,26 @@ shinyServer(function(input, output) {
     selectInput('mark_team', 'Teams', teams)
   })
   
+  
+  output$buttons <- renderUI({
+    if (input$survey_type == "apsc" & !is.null(input$grasp_in)) {
+      list(actionButton("processMarkReport", "Build Results Report", class = "pen_button"),
+           hidden(downloadButton("downloadMarkReport", "Download Results Report", class = "pen_button")),
+           tags$br(),
+           tags$br(),
+           actionButton("processCommentReport", "Build Comment Report", class = "pen_button"),
+           hidden(downloadButton("downloadCommentReport", "Download Comment Report", class = "pen_button")))
+    } else if (input$survey_type == "teamq_student" & !is.null(input$grasp_in)) {
+      list(actionButton("processTeamQReport", "Build Team Q Report", class = "pen_button"),
+           tags$br(),
+           tags$br(),
+           hidden(downloadButton("downloadTeamQReport", "Download Team Q Report", class = "pen_button")))
+    } else if (input$survey_type == "teamq_diagnostic" & !is.null(input$grasp_in)) {
+      list(downloadButton("downloadTeamQdiagnostic", "Download Team Q Report", class = "pen_button"))
+    }
+  })
+  
+  
   output$markquestions <- renderUI({
 
     if (input$survey_type == "teamq_student") {
@@ -136,90 +153,27 @@ shinyServer(function(input, output) {
     
     selectInput('comment_q_num', 'Question:', qnumbers[which(qnumbers != "NA")])
   })
-  
-  output$buttons <- renderUI({
-    
-    if (input$survey_type == "apsc" & !is.null(input$grasp_in)) {
-      list(downloadButton("downloadMarkReport", "Download Results Report", class = "pen_button"), 
-           tags$br(),
-           tags$br(),
-      downloadButton("downloadCommentReport", "Download Comment Report", class = "pen_button"))
-    } else if (input$survey_type == "teamq_student" & !is.null(input$grasp_in)) {
-      list(actionButton("processTeamQReport", "Process Team Q Report", class = "pen_button"),
-           tags$br(),
-           tags$br(),
-      downloadButton("downloadTeamQReport", "Download Team Q Report", class = "pen_button"))
-    } else if (input$survey_type == "teamq_diagnostic" & !is.null(input$grasp_in)) {
-      list(downloadButton("downloadTeamQdiagnostic", "Download Team Q Report", class = "pen_button"))
-    } 
-  })
+ 
+
   
 ## Download Handlers ----  
   output$downloadMarkReport <- downloadHandler(
-    filename = reactive(sprintf("GRASP Mark report - %s.pdf", tools::file_path_sans_ext(input$grasp_in[['name']]))),
+    filename = sprintf("GRASP Mark report - %s.pdf", file_name()),
     content = function(file) {
       
-      withProgress(message = "Building Mark Reports", value = 0, {
-     
-      grobs <- grasp_data() %>% 
-        make_tables(type = "mark", survey = "apsc") %>% 
-        transmute(grob1 = map(table1, ~build_apsc_table_grob(.x, "Intellectual and Technical Contribution")),
-                  grob2 = map(table2, ~build_apsc_table_grob(.x, "Collaboration Communication and Work Ethic"))) %>% 
-        pmap(make_apsc_mark_report)
-      
-      
-      printReport <- function(obj, idx, max){
-       
-        
-        grid.draw(obj)
-        grid.newpage()
-        
-        incProgress(1/max, detail = sprintf("Printing report %s of %s", idx, max))
-        
-      }
-      
-      pdf(file, width = 8.5, height = 11, onefile = TRUE)
-      
-      pwalk(list(obj = grobs, idx = seq_along(grobs), max = length(grobs)), printReport)
-       
-      dev.off()
-     
-       })
-      
+     file.copy(list.files(pattern = "interim_mark_report.pdf", full.names = TRUE), file)
+      file.remove("interim_mark_report.pdf")
     },
     contentType = "application/pdf"
     
   )
-  
-  
+
   output$downloadCommentReport <- downloadHandler(
-    filename = reactive(sprintf("GRASP Comment report - %s.pdf", tools::file_path_sans_ext(input$grasp_in[['name']]))),
+    filename = sprintf("GRASP Comment report - %s.pdf", file_name()),
     content = function(file) {
       
-      withProgress(message = "Building Comment Reports", value = 0, {
-      
-      grobs  <- grasp_data() %>% 
-        make_tables(type = "comment", survey = "apsc") %>% 
-        transmute(grob1 = map(comments, ~build_apsc_table_grob(.x, NULL))) %>% 
-        pmap(make_apsc_comment_report)
-      
-      pdf(file, width = 8.5, height = 11, onefile = TRUE)
-      
-      printReport <- function(obj, idx, max){
-        
-        print(obj)
-        
-        incProgress(1/max, detail = sprintf("Printing report %s of %s", idx, max))
-        
-      }
-      
-        pwalk(list(obj = grobs, idx = seq_along(grobs), max = length(grobs)), printReport)
-      
-      
-      
-      dev.off()
-      })
-      
+      file.copy(list.files(pattern = "interim_comment_report.pdf", full.names = TRUE), file)
+      file.remove("interim_comment_report.pdf")
     },
     contentType = "application/pdf"
     
@@ -236,36 +190,6 @@ shinyServer(function(input, output) {
     contentType = "application/zip"
   )
   
-  observeEvent(input$processTeamQReport, {
-    
-    withProgress(message = "Building Student Reports", value = 0, {
-    
-    toggleState("downloadTeamQReport")
-    
-    ratings <- split(grasp_data(), grasp_data()[["reviewee_id"]])
-    
-    tempReport <- "teamq_report_template.Rmd"
-    
-    renderBar <- function(x, y, max){
-      
-      rmarkdown::render(tempReport,
-                        output_file = sprintf("%s.pdf", y),
-                        params = list(data = sprintf("ratings[[%s]]", x)),
-                        clean = TRUE,
-                        quiet = TRUE)
-      
-      incProgress(1/max, detail = sprintf("Printing report %s of %s", x, max))
-      
-    }
-    
-   
-    pwalk(tibble(x = seq_along(ratings), y = names(ratings), max = length(ratings)), renderBar) 
-    })
-    
-
-    on.exit(toggleState("downloadTeamQReport"))
-    
-  })
   
   output$downloadTeamQdiagnostic <- downloadHandler(
     filename = function() {
@@ -299,6 +223,121 @@ shinyServer(function(input, output) {
   )
   
  
+  ## Reactive Processing Functions ----
+  observeEvent(input$processTeamQReport, {
+    
+    withProgress(message = "Building Student Reports", value = 0, {
+      
+      ratings <- split(grasp_data(), grasp_data()[["reviewee_id"]])
+      
+      tempReport <- "teamq_report_template.Rmd"
+      
+      renderBar <- function(x, y, max){
+        
+        rmarkdown::render(tempReport,
+                          output_file = sprintf("%s.pdf", y),
+                          params = list(data = sprintf("ratings[[%s]]", x)),
+                          clean = TRUE,
+                          quiet = TRUE)
+        
+        incProgress(1/max, detail = sprintf("Printing report %s of %s", x, max))
+        
+      }
+      
+      
+      pwalk(tibble(x = seq_along(ratings), y = names(ratings), max = length(ratings)), renderBar) 
+    })
+    
+    
+    on.exit(list(show("downloadTeamQReport"), hide("processTeamQReport")))
+    
+  })
+  
+  
+  observeEvent(input$processMarkReport, {
+    
+    
+    printReport <- function(obj, idx, max){
+      
+      grid.draw(obj)
+      grid.newpage()
+      
+      incProgress(1/max, detail = sprintf("Rendering report %s of %s", idx, max))
+      
+    }
+    
+    renderBar <- function(team_number, grob1, grob2, idx, max, ...){
+      
+      out <- make_apsc_mark_report(team_number, grob1, grob2)
+      
+      incProgress(1/max, detail = sprintf("Rendering report %s of %s", idx, max))
+      
+      return(out)
+      
+    }
+    
+    withProgress(message = "Building Mark Reports", value = 0, {
+    
+    mark_grobs <- grasp_data() %>%
+      make_tables(type = "mark", survey = "apsc") %>% 
+      ungroup() %>% 
+      mutate(grob1 = map(table1, ~build_apsc_table_grob(.x, "Intellectual and Technical Contribution")),
+             grob2 = map(table2, ~build_apsc_table_grob(.x, "Collaboration Communication and Work Ethic")),
+             idx = row_number(team_number),
+             max = nrow(.)) %>% 
+      pmap(renderBar)
+  
+    pdf("interim_mark_report.pdf", width = 8.5, height = 11, onefile = TRUE)
+    
+    pwalk(list(obj = mark_grobs, idx = seq_along(mark_grobs), max = length(mark_grobs)), printReport)
+    
+    dev.off()
+    
+    on.exit(list(show("downloadMarkReport"), hide("processMarkReport")))
+    
+  })
+  })
+  
+ observeEvent(input$processCommentReport, {
+    
+    withProgress(message = "Building Comment Reports", value = 0, {
+      
+      printReport <- function(obj, idx, max){
+        
+        print(obj)
+        
+        incProgress(1/max, detail = sprintf("Rendering report %s of %s", idx, max))
+        
+      }
+      
+      
+      renderBar <- function(team_number, grob1, idx, max, ...){
+        
+        out <- make_apsc_comment_report(team_number, grob1)
+        
+        incProgress(1/max, detail = sprintf("Rendering report %s of %s", idx, max))
+        
+        return(out)
+        
+      }
+      
+      comment_grobs  <- grasp_data() %>% 
+        make_tables(type = "comment", survey = "apsc") %>% 
+        mutate(grob1 = map(comments, ~build_apsc_table_grob(.x, NULL)),
+                  idx = row_number(team_number),
+                  max = nrow(.)) %>% 
+        pmap(renderBar) 
+      
+      pdf("interim_comment_report.pdf", width = 8.5, height = 11, onefile = TRUE)
+      
+      pwalk(list(obj = comment_grobs, idx = seq_along(comment_grobs), max = length(comment_grobs)), printReport)
+      
+      dev.off()
+      
+    })
+    on.exit(list(show("downloadCommentReport"), hide("processCommentReport")))
+    
+  })  
   
   
 })
