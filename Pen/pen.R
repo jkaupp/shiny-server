@@ -155,7 +155,7 @@ make_apsc_comment_report <- function(team_number, grob1) {
 }
 
 
-# Build Table Grobs for APSC Peer Assessment Survey report
+# Build Table Grobs for APSC Peer Assessment report
 build_apsc_table_grob <- function(tbl, tbl_title) {
   
   rows <- nrow(tbl)
