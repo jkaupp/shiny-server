@@ -161,8 +161,9 @@ build_apsc_table_grob <- function(tbl, tbl_title) {
   rows <- nrow(tbl)
   cols <- ncol(tbl)
   
-  if (rows < 10) {
+  if (rows < 8) {
     theme <- ttheme_default(core = list(fg_params = list(fontface = c(rep("plain", rows - 3), rep("bold", 3))))) 
+
   } else {
     
     theme <- ttheme_default(base_size = 8) 
@@ -173,7 +174,7 @@ build_apsc_table_grob <- function(tbl, tbl_title) {
   
   table <- tableGrob(tbl, rows = NULL, theme = theme)
   
-  if (rows < 10) {
+  if (rows < 8) {
     
     for (i in seq(rows - 1, rows + 1)) {
       

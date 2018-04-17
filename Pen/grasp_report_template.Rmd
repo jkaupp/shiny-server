@@ -1,0 +1,116 @@
+---
+output: pdf_document
+params: 
+   type: "mark"
+geometry: margin=0.2in
+---
+```{r setup, include = FALSE}
+
+library(tidyverse)
+library(janitor)
+library(magrittr)
+library(knitr)
+library(pander)
+library(stringr)
+
+opts_chunk$set(echo = FALSE)
+
+grasp_mark_tables <- function(x, var) {
+  
+    main <- select_(x, ~reviewer_last_name, ~reviewer_first_name, ~reviewee_last_name, ~reviewee_first_name, var) %>% 
+      mutate(reviewer_name = paste(reviewer_first_name,reviewer_last_name, sep = " ")) %>% 
+      mutate(reviewee_name = paste(reviewee_first_name,reviewee_last_name, sep = " ")) %>% 
+      arrange(reviewer_last_name, reviewee_last_name) %>%
+      select_(~reviewee_name, ~reviewer_name, var) %>%
+      mutate(reviewee_name = factor(reviewee_name,levels = unique(reviewee_name))) %>% 
+      mutate(reviewer_name = factor(reviewer_name,levels = unique(reviewer_name))) %>% 
+      spread_("reviewee_name", var) 
+    
+    summary <- summarize_each(main, funs(mean(., na.rm = TRUE)), -reviewer_name) %>% 
+      mutate(reviewer_name = "Average") %>% 
+      mutate_each(funs(trunc), -reviewer_name)
+    
+    bind_rows(main, summary) %>% 
+      set_names(c("", names(.)[-1])) 
+  
+}
+
+grasp_comment_tables <- function(x, var) {
+  
+    select_(x,~reviewer_last_name, ~reviewer_first_name, ~reviewee_last_name, ~reviewee_first_name, ~contains(var)) %>% 
+      mutate(reviewer_name = paste(reviewer_first_name,reviewer_last_name, sep = " ")) %>% 
+      mutate(reviewee_name = paste(reviewee_first_name,reviewee_last_name, sep = " ")) %>% 
+      gather("item","comment", contains("comment")) %>% 
+      separate(item, c("question","drop"), sep = "_") %>% 
+      arrange(reviewee_last_name, reviewer_last_name, question) %>% 
+      mutate(reviewee_name = factor(reviewee_name,levels = unique(reviewee_name))) %>% 
+      mutate(reviewer_name = factor(reviewer_name,levels = unique(reviewer_name))) %>% 
+      mutate(comment = str_replace_all(comment, "[\r]" , "")) %>% 
+      mutate(comment = str_replace_all(comment, "[^[:alnum:]]", " ")) %>% 
+      select(reviewee_name, reviewer_name, question, comment) %>% 
+      rename(From = reviewer_name,
+             Question = question,
+             Comment = comment) %>% 
+      split(.$reviewee_name) %>% 
+      map(~ select(.x, -reviewee_name)) 
+      
+}
+
+
+
+
+```
+
+
+```{r tables, include = FALSE}
+
+if (params$type == "mark") {
+  var1 <- "q1_mark"
+  var2 <- "q2_mark"
+  
+  table1 <- grasp_data() %>%
+    split(.$team) %>%
+    map(~ grasp_mark_tables(.x, var = var1))
+  
+  table2 <- grasp_data() %>%
+    split(.$team) %>%
+    map(~ grasp_mark_tables(.x, var = var2))
+  
+  len <- length(table1)
+  
+  teams <- sprintf("Peer Evalution Team: %s\\hfill \\break ", names(table1))
+  
+  tables <- c(rbind(teams,
+    rep("\\hfill \\break ", len),
+    rep("Intellectual and Technical Contribution", len) ,
+    table1,
+    rep("\\hfill \\break ", len),
+    rep("Collaboration Communication and Work Ethic", len),
+    table2,
+    rep("\\newpage ", len),
+    rep("\\hfill \\break ", len)))
+  
+  
+} else {
+  var <- "comment"
+  
+  comment_tables <- grasp_data() %>% 
+    split(.$team) %>% 
+    map(~ grasp_comment_tables(.x, var = var))
+  
+   teams <- sprintf("Peer Comments Team: %s\\hfill \\break ", names(comment_tables))
+  
+   len <- length(table)
+  
+   tables <- c(rbind(teams, rep("\\hfill \\break ", len), comment_tables, rep("\\newpage ", len), rep("\\hfill \\break ", len)))
+}
+
+ 
+```
+\footnotesize
+```{r output, results = 'asis'}
+panderOptions('knitr.auto.asis', FALSE)
+
+invisible(map(tables, ~ pander(.x, keep.line.breaks = TRUE, justify = "left", split.cell = 50, split.table = Inf, digits = 0, style = 'simple')))
+```
+
