@@ -99,7 +99,7 @@ apsc_mark_tables <- function(x, var) {
 # Make apsc peer assessment mark data tables
 apsc_comment_tables <- function(x, var) {
   
-  select_(x,~reviewer_last_name, ~reviewer_first_name, ~reviewee_last_name, ~reviewee_first_name, ~contains(var)) %>% 
+  select_(x, ~reviewer_last_name, ~reviewer_first_name, ~reviewee_last_name, ~reviewee_first_name, ~contains(var)) %>% 
     mutate(reviewer_name = paste(reviewer_first_name,reviewer_last_name, sep = " ")) %>% 
     mutate(reviewee_name = paste(reviewee_first_name,reviewee_last_name, sep = " ")) %>% 
     gather("item","comment", contains("comment")) %>% 
@@ -168,8 +168,13 @@ build_apsc_table_grob <- function(tbl, tbl_title) {
     
     theme <- ttheme_default(base_size = 8) 
     
-    tbl <- ungroup(tbl) %>% 
-       mutate_at("Comment", funs(str_wrap), width = 100) 
+    tbl <- ungroup(tbl) 
+    
+    if ("Comments" %in% names(tbl)) {
+      
+    tbl <- mutate_at(tbl, matches("comment", ignore.case = TRUE), funs(str_wrap), width = 100)
+      
+    }
   }
   
   table <- tableGrob(tbl, rows = NULL, theme = theme)

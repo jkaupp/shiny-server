@@ -52,7 +52,7 @@ shinyServer(function(input, output) {
   ## Data Ingest ----
   grasp_data <- reactive({read_csv(input$grasp_in[['datapath']], trim_ws = TRUE) %>% 
                            clean_names() %>%
-                           remove_empty_rows()}) 
+                           remove_empty("rows")}) 
   
   file_name <- reactive({tools::file_path_sans_ext(input$grasp_in[['name']])})
   
