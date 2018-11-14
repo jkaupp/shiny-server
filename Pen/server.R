@@ -323,12 +323,13 @@ shinyServer(function(input, output) {
       
       comment_grobs  <- grasp_data() %>% 
         make_tables(type = "comment", survey = "apsc") %>% 
+        ungroup() %>% 
         mutate(grob1 = map(comments, ~build_apsc_table_grob(.x, NULL)),
                   idx = row_number(team_number),
                   max = nrow(.)) %>% 
         pmap(renderBar) 
       
-      pdf("interim_comment_report.pdf", width = 8.5, height = 11, onefile = TRUE)
+      pdf("interim_comment_report.pdf", width = 8.5, height = 11, onefile = TRUE, paper = "letter")
       
       pwalk(list(obj = comment_grobs, idx = seq_along(comment_grobs), max = length(comment_grobs)), printReport)
       

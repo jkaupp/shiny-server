@@ -170,9 +170,9 @@ build_apsc_table_grob <- function(tbl, tbl_title) {
     
     tbl <- ungroup(tbl) 
     
-    if ("Comments" %in% names(tbl)) {
+    if (any(grepl("comment", names(tbl), ignore.case = TRUE))) {
       
-    tbl <- mutate_at(tbl, matches("comment", ignore.case = TRUE), funs(str_wrap), width = 100)
+    tbl <- mutate_at(tbl, vars(matches("comment", ignore.case = TRUE)), funs(str_wrap), width = 100)
       
     }
   }
